@@ -25,6 +25,8 @@ protected:
 	float a{};
 	Vec2d<float> vel{};
 public:
+	BasePhysic() {};
+	virtual ~BasePhysic() {};
 	BasePhysic* SetAcceleration(float a) { this->a = a; return this; }
 	BasePhysic* SetVelocity(const Vec2d<float>& vel) { this->vel = vel; return this; }
 	//update to get new value

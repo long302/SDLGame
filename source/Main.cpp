@@ -32,6 +32,8 @@ int main()
 	{
 		GameSystem::Spawn::NormalEnermy( { 50.0f + static_cast<float>(t),50.0f + static_cast<float>(t) }, renderer);
 	}
+	TextureManager& tm = TextureManager::GetInstance();
+
 	bool end{false};
 	int count = 0;
 	while (!end)

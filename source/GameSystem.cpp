@@ -63,17 +63,17 @@ void GameSystem::Spawn::Bullet(const Vec2d<float>& pos, SDL_Renderer* renderer, 
 	bullet->Add<Collider>()
 		->Add<BulletTransformer>()
 		->Add<Renderer>()
-		->Add<Imager>()
+	//	->Add<Imager>()
 		->Add<BulletController>();
 	auto t = bullet->Get<BulletTransformer>();
 	t->SetPos(pos);
 	auto col = bullet->Get<Collider>()->GetHitBox().SetRect(t->GetPos().y, t->GetPos().x, 25, 25);
 	auto r = bullet->Get<Renderer>();
 	r->SetRenderer(renderer);
-	bullet->Get<BulletController>()->SetSpeed(10.0)
+	bullet->Get<BulletController>()->SetSpeed(20.0)
 		->SetVelocity(velocity);
 	TextureManager& tm = TextureManager::GetInstance();
-	tm.AddTexture(bullet->GetType(), TextureType::NONE, renderer, "assets/image/Laser.png", 1,1);
+	tm.AddTexture(EntityType::BULLET, TextureType::NONE, renderer, "assets/image/Laser.png", 1, 1);
 	bullet->Get<Imager>()->SetTexture(&tm.GetTexture(bullet->GetType(), TextureType::NONE));
 }
 void GameSystem::Recall::Update()
@@ -86,7 +86,7 @@ void GameSystem::Recall::Update()
 		{
 			auto b_t = bullets->Get<BulletTransformer>();
 			float distance = (p_t->GetPos() - b_t->GetPos()).Length();
-			if (distance > 20.0)
+			if (distance > 2000.0)
 			{
 				bullets->SetState(EntityState::DEAD);
 			}
@@ -98,7 +98,6 @@ void GameSystem::Recall::Update()
 		{
 			if (vec_e.second[i]->GetState() == EntityState::DEAD)
 			{
-				std::cout << vec_e.second[i].use_count() << std::endl;
 				vec_e.second.erase(vec_e.second.begin() + i);
 				i--;
 			}

@@ -4,6 +4,7 @@
 #define HEIGHT 750
 #include<math.h>
 #include<cmath>
+#include<string_view>
 enum class EntityType
 {
 	NONE,
@@ -11,6 +12,17 @@ enum class EntityType
 	NORMAL_ENERMY,
 	BULLET
 };
+constexpr std::string_view GetStringOf(EntityType type)noexcept
+{
+	switch (type)
+	{
+	case EntityType::NONE:   return "EntityType::NONE";
+	case EntityType::PLAYER: return "EntityType::PLAYER";
+	case EntityType::NORMAL_ENERMY:  return "EntityType::NORMAL_ENEMY";
+	case EntityType::BULLET: return "EntityType::BULLET";
+	default: return "Unknown";
+	}
+}
 enum class EntityState
 {
 	NONE,

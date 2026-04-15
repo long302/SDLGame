@@ -15,7 +15,6 @@
 #define ComponentPointer std::shared_ptr<Component>
 #define ComponentMap  std::map<ComponentType, ComponentPointer> 
 
-
 class EntityManager;
 class Entity
 {
@@ -27,16 +26,24 @@ private:
 	EntityType type{EntityType::NONE};
 public:
 	Entity() { id++; m_id = id; }
-	~Entity() = default;
+	~Entity() ;
 
 	template<typename N>
 	std::shared_ptr<N> Get() 
 	{
+		//debuger
 		if (components.find(N::type) == components.end())
 		{
+			std::cout << GetStringOf(type) << " didnt init " <<GetStringOf(N::type) << std::endl;
+			return nullptr;
+		}
+		if (strcmp(typeid(N).name(), typeid(*components[N::type]).name()) != 0)
+		{
+			std::cout << GetStringOf(type) << " doesnt have " << typeid(N).name() <<", must be "<< typeid(*components[N::type]).name()<< std::endl;
 			__debugbreak();
 			return nullptr;
 		}
+		//end debuger
 		return std::dynamic_pointer_cast<N>(components[N::type]); 
 	}
 	int GetId() const { return m_id; }

@@ -5,7 +5,7 @@ class BulletController: public Component
 {
 private:
 	Vec2d<float> vel{};
-	float speed{ 10.0 };
+	float speed{ 200.0 };
 public:
 	static constexpr ComponentType type = ComponentType::CONTROL;
 	BulletController() {};

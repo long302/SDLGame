@@ -3,6 +3,8 @@
 
 bool Texture::Load(SDL_Renderer* renderer, const char* path)
 {
+	SDL_DestroyTexture(tex);
+	tex = nullptr;
 	tex = IMG_LoadTexture(renderer, path);
 	if (!tex)
 	{

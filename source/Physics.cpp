@@ -1,6 +1,12 @@
 #include "Physics.h"
  
 		
+Physics::~Physics()
+{
+	physics.clear();
+	std::cout << "Physic clear\n";
+}
+
 void Physics::Update()
 {
 	const Vec2d<float> old_v = v;

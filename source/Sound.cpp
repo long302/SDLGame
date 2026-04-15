@@ -29,6 +29,7 @@ AudioManager* AudioManager::DestroyAudio(EntityType type)
 bool AudioManager::AddAudio(EntityType e_type, AudioType au_type, const char* path)
 {
 	if (!mixer) std::cout << "Mixer is null\n";
+
 	audios[e_type][au_type].Load(mixer, path);
 	return true;
 }

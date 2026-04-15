@@ -15,7 +15,7 @@ private:
 public:
 	static constexpr ComponentType type = ComponentType::PHYSIC;
 	Physics() {};
-	~Physics() {};
+	~Physics() override ;
 
 	Physics* SetForce(const Vec2d<float>& f) { this->f = f; return this; }
 	Physics* SetWeight(float m) { weight.SetVal(m); return this; }
