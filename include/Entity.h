@@ -19,9 +19,9 @@ class EntityManager;
 class Entity
 {
 private:
-	static inline unsigned int id = 0;
+	static inline std::size_t id = 0;
 	EntityState state{ EntityState::NONE };
-	unsigned int m_id;
+	std::size_t m_id;
 	ComponentMap components;
 	EntityType type{EntityType::NONE};
 public:

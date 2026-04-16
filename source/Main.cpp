@@ -1,4 +1,4 @@
-#include<iostream>
+
 #include"GameSystem.h"
 #include<thread>
 #include"SDL3_mixer/SDL_mixer.h"
@@ -33,7 +33,7 @@ int main()
 		GameSystem::Spawn::NormalEnermy( { 50.0f + static_cast<float>(t),50.0f + static_cast<float>(t) }, renderer);
 	}
 	TextureManager& tm = TextureManager::GetInstance();
-
+	tm.AddTexture(EntityType::BULLET, TextureType::NONE, renderer, "assets/image/Laser.png", 1, 1);
 	bool end{false};
 	int count = 0;
 	while (!end)

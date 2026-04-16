@@ -15,8 +15,8 @@ void GameSystem::Spawn::Player(const Vec2d<float>& pos,SDL_Renderer* renderer)
 	 t->SetPos(pos);
 
 	 //physic
-	 auto p = player->Get<Physics>();
-	 p->Add<Gravity>()
+	 auto player_p = player->Get<Physics>();
+	 player_p->Add<Gravity>()
 		 ->Add<Drag>()
 		 ->Add<Movement>()
 		 ->Add<Reaction>();
@@ -43,8 +43,8 @@ void GameSystem::Spawn::NormalEnermy(const Vec2d<float>& pos, SDL_Renderer* rend
 	auto t = enermy->Get<Transformer>();
 	t->SetPos(pos);
 	auto col = enermy->Get<Collider>()->GetHitBox().SetRect(t->GetPos().y, t->GetPos().x, 100, 100);
-	auto p = enermy->Get<Physics>();
-	p->Add<Gravity>()
+	auto player = enermy->Get<Physics>();
+	player->Add<Gravity>()
 		->Add<Drag>()
 		->Add<Movement>()
 		->Add<Reaction>();
@@ -63,17 +63,17 @@ void GameSystem::Spawn::Bullet(const Vec2d<float>& pos, SDL_Renderer* renderer, 
 	bullet->Add<Collider>()
 		->Add<BulletTransformer>()
 		->Add<Renderer>()
-	//	->Add<Imager>()
+		->Add<Imager>()
 		->Add<BulletController>();
 	auto t = bullet->Get<BulletTransformer>();
 	t->SetPos(pos);
 	auto col = bullet->Get<Collider>()->GetHitBox().SetRect(t->GetPos().y, t->GetPos().x, 25, 25);
 	auto r = bullet->Get<Renderer>();
 	r->SetRenderer(renderer);
-	bullet->Get<BulletController>()->SetSpeed(20.0)
+	bullet->Get<BulletController>()->SetSpeed(30.0)
 		->SetVelocity(velocity);
 	TextureManager& tm = TextureManager::GetInstance();
-	tm.AddTexture(EntityType::BULLET, TextureType::NONE, renderer, "assets/image/Laser.png", 1, 1);
+	
 	bullet->Get<Imager>()->SetTexture(&tm.GetTexture(bullet->GetType(), TextureType::NONE));
 }
 void GameSystem::Recall::Update()
@@ -81,11 +81,11 @@ void GameSystem::Recall::Update()
 	EntityManager& em = EntityManager::GetInstance();
 	for(auto& player: em.GetEntity(EntityType::PLAYER))
 	{
-		auto p_t = player->Get<Transformer>();
+		auto player_t = player->Get<Transformer>();
 		for (auto& bullets : em.GetEntity(EntityType::BULLET))
 		{
 			auto b_t = bullets->Get<BulletTransformer>();
-			float distance = (p_t->GetPos() - b_t->GetPos()).Length();
+			float distance = (player_t->GetPos() - b_t->GetPos()).Length();
 			if (distance > 2000.0)
 			{
 				bullets->SetState(EntityState::DEAD);
@@ -135,7 +135,6 @@ void GameSystem::HandleControl::Update()
 		auto p = e->Get<Physics>();
 		auto c = e->Get<Controller>();
 		for (ControlState cs : c->GetState())
-
 		{
 			switch (cs)
 			{
@@ -149,21 +148,21 @@ void GameSystem::HandleControl::Update()
 				break;
 			case ControlState::RUN_LEFT:
 				p->Get<Movement>()->SetAcceleration(1.0f)
-					->SetVelocity({ -1.0,0.0 });
-				p->Get<Drag>()->SetAcceleration(0.1);
+					->SetVelocity({ -1.0,0.0 });				
 				break;
 			case ControlState::RUN_RIGHT:
 				p->Get<Movement>()->SetAcceleration(1.0f)
 					->SetVelocity({ 1.0,0.0 });
-				p->Get<Drag>()->SetAcceleration(0.1);
 				break;
 			case ControlState::USING_SK1:
 				auto col = e->Get<Collider>();
 				auto t = e->Get<Transformer>();
 				auto r = e->Get<Renderer>();
+				auto p = e->Get<Physics>();
 				Vec2d<float> vel = mouse.GetPos()+ g_pos - col->GetHitBox().GetRect().GetMidPos();
 				vel.Normalize();
-				GameSystem::Spawn::Bullet(col->GetHitBox().GetRect().GetMidPos() + (vel * col->GetHitBox().GetRect().w / 2.0),
+				p->IncreaseForce(vel * -1 );
+				GameSystem::Spawn::Bullet(col->GetHitBox().GetRect().GetMidPos() + (vel * (col->GetHitBox().GetRect().w+ col->GetHitBox().GetRect().h) / 2.0),
 					r->GetRenderer(),
 					vel);
 				am.PlayAudio(EntityType::PLAYER, AudioType::SHOOT);
@@ -173,10 +172,9 @@ void GameSystem::HandleControl::Update()
 	}
 	for (auto& e : em.GetEntity(EntityType::NORMAL_ENERMY))
 	{
-		auto p = e->Get<Physics>();
+		auto player = e->Get<Physics>();
 		auto c = e->Get<AutoControl>();
 		for (ControlState cs : c->GetState())
-
 		{
 			switch (cs)
 			{
@@ -185,18 +183,18 @@ void GameSystem::HandleControl::Update()
 			case ControlState::ATTACK:
 				break;
 			case ControlState::JUMP:
-				p->IncreaseForce({ 0.0,-5.0 });
-				p->Get<Gravity>()->SetAcceleration(1.0);
+				player->IncreaseForce({ 0.0,-5.0 });
+				player->Get<Gravity>()->SetAcceleration(1.0);
 				break;
 			case ControlState::RUN_LEFT:
-				p->Get<Movement>()->SetAcceleration(1.0f)
+				player->Get<Movement>()->SetAcceleration(1.0f)
 					->SetVelocity({ -1.0,0.0 });
-				p->Get<Drag>()->SetAcceleration(0.1);
+				player->Get<Drag>()->SetAcceleration(0.1);
 				break;
 			case ControlState::RUN_RIGHT:
-				p->Get<Movement>()->SetAcceleration(1.0f)
+				player->Get<Movement>()->SetAcceleration(1.0f)
 					->SetVelocity({ 1.0,0.0 });
-				p->Get<Drag>()->SetAcceleration(0.1);
+				player->Get<Drag>()->SetAcceleration(0.1);
 				break;
 			case ControlState::USING_SK1:
 				break;
@@ -279,19 +277,19 @@ void GameSystem::Transform::Update()
 void GameSystem::Collide::Update()
 {
 	EntityManager& em = EntityManager::GetInstance();
-	for (auto& p : em.GetEntity(EntityType::PLAYER))
+	for (auto& player : em.GetEntity(EntityType::PLAYER))
 	{
-		auto p_col = p->Get<Collider>();
-		auto p_t = p->Get<Transformer>();
-		p_col->GetHitBox().SetRect(p_t->GetPos().y, p_t->GetPos().x, p_col->GetHitBox().GetRect().w, p_col->GetHitBox().GetRect().h);
-		for (auto& ne : em.GetEntity(EntityType::NORMAL_ENERMY))
+		auto player_col = player->Get<Collider>();
+		auto player_t = player->Get<Transformer>();
+		player_col->GetHitBox().SetRect(player_t->GetPos().y, player_t->GetPos().x, player_col->GetHitBox().GetRect().w, player_col->GetHitBox().GetRect().h);
+		for (auto& normal_enermy : em.GetEntity(EntityType::NORMAL_ENERMY))
 		{
-			auto ne_col = ne->Get<Collider>();
-			auto ne_t = ne->Get<Transformer>();
+			auto ne_col = normal_enermy->Get<Collider>();
+			auto ne_t = normal_enermy->Get<Transformer>();
 			ne_col->GetHitBox().SetRect(ne_t->GetPos().y, ne_t->GetPos().x, ne_col->GetHitBox().GetRect().w, ne_col->GetHitBox().GetRect().h);
-			if(p_col->GetHitBox().CollideDetect(ne_col->GetHitBox()))
+			if(player_col->GetHitBox().CollideDetect(ne_col->GetHitBox()))
 			{
-				const Rectangle& rect=p_col->GetHitBox().GetOverlab(ne_col->GetHitBox());
+				const Rectangle& rect=player_col->GetHitBox().GetOverlab(ne_col->GetHitBox());
 
 				if (rect.GetMidPos().x < ne_col->GetHitBox().GetRect().GetMidPos().x)
 				{
@@ -303,7 +301,23 @@ void GameSystem::Collide::Update()
 				}
 			}
 		}
+		for (auto& bullet : em.GetEntity(EntityType::BULLET))
+		{
+			auto& bullet_col = bullet->Get<Collider>();
+
+			for (auto& player : em.GetEntity(EntityType::PLAYER))
+			{
+				auto& player_col = player->Get<Collider>();
+				if (bullet_col->GetHitBox().CollideDetect(player_col->GetHitBox()))
+				{
+					bullet->SetState(EntityState::DEAD);
+
+				}
+			}
+
+		}
 	}
+
 }
 void GameSystem::Assets::Update()
 {

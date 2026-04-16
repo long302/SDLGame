@@ -4,7 +4,7 @@
 Physics::~Physics()
 {
 	physics.clear();
-	std::cout << "Physic clear\n";
+	//std::cout << "Physic clear\n";
 }
 
 void Physics::Update()
@@ -26,19 +26,11 @@ void Physics::Update()
 		if (f.y > 0.0) f.y = 10.0;
 	}
 	v = f/weight.GetVal();
-	if ((v.x <= 0.0 && old_v.x>=0.0) || (v.x >= 0.0 && old_v.x <= 0.0))
-	{
-		
-		f.x = 0.0;
-		if (physics.find(PhysicType::DRAG) != physics.end())
-		{
-			physics[PhysicType::DRAG]->SetAcceleration(0.0);
-		}
-	}
+	physics[PhysicType::DRAG]->SetAcceleration(0.1);
 	if (physics.find(PhysicType::DRAG) != physics.end())
 	{
-		physics[PhysicType::DRAG]->SetVelocity({-v.x,0.0});
-		//std::cout << v.x << " " << v.y << " " << physics[PhysicType::DRAG]->GetAcceleration() << std::endl;
+		physics[PhysicType::DRAG]->SetVelocity({-v.x,(-v.y)*0.1f});
+	//	std::cout << v.x << " " << v.y << " " << physics[PhysicType::DRAG]->GetAcceleration() << std::endl;
 	}
 	if (physics.find(PhysicType::MOVE) != physics.end())
 	{
