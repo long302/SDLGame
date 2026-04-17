@@ -26,11 +26,15 @@ void Physics::Update()
 		if (f.y > 0.0) f.y = 10.0;
 	}
 	v = f/weight.GetVal();
-	physics[PhysicType::DRAG]->SetAcceleration(0.1);
 	if (physics.find(PhysicType::DRAG) != physics.end())
 	{
 		physics[PhysicType::DRAG]->SetVelocity({-v.x,(-v.y)*0.1f});
+		physics[PhysicType::DRAG]->SetAcceleration(0.1);
 	//	std::cout << v.x << " " << v.y << " " << physics[PhysicType::DRAG]->GetAcceleration() << std::endl;
+	}
+	if (physics.find(PhysicType::REACT) != physics.end())
+	{
+		
 	}
 	if (physics.find(PhysicType::MOVE) != physics.end())
 	{

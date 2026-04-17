@@ -4,7 +4,7 @@ class Transformer : public Component
 {
 private:
 	Vec2d<float> pos{};
-	bool on_ground{};
+	bool on_ground{false};
 public:
 	constexpr static ComponentType type = ComponentType::TRANSFORM;
 
@@ -15,6 +15,7 @@ public:
 
 	const Vec2d<float>& GetPos() { return pos; }
 	bool GetOnGround() const { return on_ground; }
+	Transformer* SetOnGround(bool value) { on_ground = value; return this; }
 
 	Transformer* SetPos(float x, float y) { pos.SetX(x).SetY(y); return this; }
 	Transformer* SetPos(const Vec2d<float>& p) { pos = p; return this; }

@@ -21,6 +21,7 @@ constexpr std::string_view GetStringOf(EntityType type)noexcept
 	case EntityType::PLAYER: return "EntityType::PLAYER";
 	case EntityType::NORMAL_ENERMY:  return "EntityType::NORMAL_ENEMY";
 	case EntityType::BULLET: return "EntityType::BULLET";
+	case EntityType::GROUND: return "EntityType::GROUND";
 	default: return "Unknown";
 	}
 }

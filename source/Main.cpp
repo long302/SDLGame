@@ -32,10 +32,19 @@ int main()
 	{
 		GameSystem::Spawn::NormalEnermy({ 50.0f + static_cast<float>(t),50.0f + static_cast<float>(t) }, renderer);
 	}
+	for (t = 0; t < 10; t++)
+	{
+		GameSystem::Spawn::Ground({ static_cast<float>(t)*300.0f,500.0f }, renderer);
+	}
+	for (t = 0; t < 1; t++)
+	{
+		GameSystem::Spawn::Ground({ static_cast<float>(t) * 400.0f,350.0f }, renderer);
+	}
 	TextureManager& tm = TextureManager::GetInstance();
 	tm.AddTexture(EntityType::BULLET, TextureType::NONE, renderer, "assets/image/Laser.png", 1, 1);
 	tm.AddTexture(EntityType::PLAYER, TextureType::NONE, renderer, "assets/image/Run.png", 2, 3);
 	tm.AddTexture(EntityType::NORMAL_ENERMY, TextureType::NONE, renderer, "assets/image/Run.png", 2, 3);
+	tm.AddTexture(EntityType::GROUND, TextureType::NONE,renderer, "assets/image/ground.png",1,1);
 	bool end{false};
 	int count = 0;
 	while (!end)

@@ -81,7 +81,17 @@ void GameSystem::Spawn::Ground(const Vec2d<float>& pos, SDL_Renderer* renderer)
 		->Add<Imager>()
 		->Add<Collider>()
 		->Add<Renderer>();
-}
+	auto t = ground->Get<BulletTransformer>();
+	t->SetPos(pos);
+	auto img = ground->Get<Imager>();
+	TextureManager& tm = TextureManager::GetInstance();
+	img->SetTexture(&tm.GetTexture(ground->GetType(),TextureType::NONE));
+	auto col = ground->Get<Collider>();
+	col->GetHitBox().SetRect(0, 0, 400, 100);
+	auto r = ground->Get<Renderer>();
+	r->SetRenderer(renderer);
+
+}	
 void GameSystem::Recall::Update()
 {
 	EntityManager& em = EntityManager::GetInstance();
@@ -214,39 +224,36 @@ void GameSystem::Physic::Update()
 	for (auto& e : em.GetEntity(EntityType::PLAYER))
 	{
 		auto p = e->Get<Physics>();
-		auto c = e->Get<Controller>();
 		auto t = e->Get<Transformer>();
-	
 		if (t->GetOnGround())
 		{
-			if(p->GetForce().y>0.0) p->SetForce({ p->GetForce().x,0.0 });				
+			p->Get<Reaction>()
+				->SetAcceleration(p->Get<Gravity>()->GetAcceleration())
+				->SetVelocity(p->Get<Gravity>()->GetVeclocity() * -1.0);
 		}
 		else
 		{
-			p->Get<Gravity>()->SetAcceleration(1.0);
-			p->Get<Reaction>()->SetAcceleration(0.0)
-				->SetVelocity({ 0.0,0.0 });
+			p->Get<Reaction>()
+				->SetAcceleration(0.0);
 		}
+		
 		p->Update();
 		
 	}
 	for (auto& e : em.GetEntity(EntityType::NORMAL_ENERMY))
 	{
 		auto p = e->Get<Physics>();
-		auto c = e->Get<AutoControl>();
 		auto t = e->Get<Transformer>();
-		
-		
 		if (t->GetOnGround())
 		{
-			if (p->GetForce().y > 0.0) p->SetForce({ p->GetForce().x,0.0 });
-
+			p->Get<Reaction>()
+				->SetAcceleration(p->Get<Gravity>()->GetAcceleration())
+				->SetVelocity(p->Get<Gravity>()->GetVeclocity() * -1.0);
 		}
 		else
 		{
-			p->Get<Gravity>()->SetAcceleration(1.0);
-			p->Get<Reaction>()->SetAcceleration(0.0)
-				->SetVelocity({ 0.0,0.0 });
+			p->Get<Reaction>()
+				->SetAcceleration(0.0);
 		}
 		p->Update();
 	}
@@ -333,6 +340,79 @@ void GameSystem::Collide::Update()
 
 			}
 		}
+		
+	}
+	// Ground vs all
+	for (auto& ground : em.GetEntity(EntityType::GROUND))
+	{
+		auto ground_col = ground->Get<Collider>();
+		auto ground_t = ground->Get<BulletTransformer>();
+		ground_col->GetHitBox().SetRect(ground_t->GetPos().y, ground_t->GetPos().x, ground_col->GetHitBox().GetRect().w, ground_col->GetHitBox().GetRect().h);
+
+		for (auto& player : em.GetEntity(EntityType::PLAYER))
+		{
+			auto player_col = player->Get<Collider>();
+			auto player_t = player->Get<Transformer>();
+			auto player_p = player->Get<Physics>();
+			const auto& player_v = player_p->GetVelocity();
+			player_col->GetHitBox().SetRect(player_t->GetPos().y, player_t->GetPos().x, player_col->GetHitBox().GetRect().w, player_col->GetHitBox().GetRect().h);
+			if (ground_col->GetHitBox().CollideDetect(player_col->GetHitBox()))
+			{
+				Rectangle overlab = ground_col->GetHitBox().GetOverlab(player_col->GetHitBox());
+				auto& ground_rect = ground_col->GetHitBox().GetRect();
+				auto& player_rect = player_col->GetHitBox().GetRect();
+				if (player_rect.GetBottom() - player_v.y <= ground_rect.GetTop())//player o tren ground
+				{
+					player_t->Decrease({ 0.0,overlab.h + 1.0f });
+					player_t->SetOnGround(true);
+							
+				}
+				if (player_rect.GetTop() - player_v.y >= ground_rect.GetBottom())//player o duoi ground
+				{
+					player_t->Increase({ 0.0,overlab.h + 1.0f });
+				}
+				if (player_rect.GetLeft() - player_v.x >= ground_rect.GetRight()) //player o ben phai ground
+				{
+					player_t->Increase({ overlab.w + 1.0f,0.0 });
+				}
+				if (player_rect.GetRight() - player_v.x <= ground_rect.GetLeft()) //player o ben trai ground
+				{
+					player_t->Decrease({ overlab.w + 1.0f,0.0 });
+				}
+			}
+		}
+		for (auto& enermy : em.GetEntity(EntityType::NORMAL_ENERMY))
+		{
+			auto enermy_col = enermy->Get<Collider>();
+			auto enermy_t = enermy->Get<Transformer>();
+			auto enermy_p = enermy->Get<Physics>();
+			const auto& enermy_v = enermy_p->GetVelocity();
+			enermy_col->GetHitBox().SetRect(enermy_t->GetPos().y, enermy_t->GetPos().x, enermy_col->GetHitBox().GetRect().w, enermy_col->GetHitBox().GetRect().h);
+			if (ground_col->GetHitBox().CollideDetect(enermy_col->GetHitBox()))
+			{
+				Rectangle overlab = ground_col->GetHitBox().GetOverlab(enermy_col->GetHitBox());
+				auto& ground_rect = ground_col->GetHitBox().GetRect();
+				auto& enermy_rect = enermy_col->GetHitBox().GetRect();
+				if (enermy_rect.GetBottom() - enermy_v.y <= ground_rect.GetTop())//enermy o tren ground
+				{
+					enermy_t->Decrease({ 0.0,overlab.h });
+					enermy_t->SetOnGround(true);
+
+				}
+				if (enermy_rect.GetTop() - enermy_v.y >= ground_rect.GetBottom())//enermy o duoi ground
+				{
+					enermy_t->Increase({ 0.0,overlab.h });
+				}
+				if (enermy_rect.GetLeft() - enermy_v.x >= ground_rect.GetRight()) //enermy o ben phai ground
+				{
+					enermy_t->Increase({ overlab.w,0.0 });
+				}
+				if (enermy_rect.GetRight() - enermy_v.x <= ground_rect.GetLeft()) //enermy o ben trai ground
+				{
+					enermy_t->Decrease({ overlab.w,0.0 });
+				}
+			}
+		}
 	}
 
 }
@@ -373,6 +453,19 @@ void GameSystem::Render::Update()
 		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
 		auto img = e->Get<Imager>();
 		r->SetDstRect({ pos.x - g_pos.x,pos.y - g_pos.y,rect.w,rect.h })
+			->SetDelay(3)
+			->SetTexture(img->GetTexture())
+			->Update();
+
+
+	}
+	for (auto& e : em.GetEntity(EntityType::GROUND))
+	{
+		auto r = e->Get<Renderer>();
+		auto pos = e->Get<BulletTransformer>()->GetPos();
+		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
+		auto img = e->Get<Imager>();
+		r->SetDstRect({ pos.x - g_pos.x,pos.y - g_pos.y,rect.w,2.0f*rect.h })
 			->SetDelay(3)
 			->SetTexture(img->GetTexture())
 			->Update();
