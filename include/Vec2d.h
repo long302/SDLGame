@@ -10,7 +10,8 @@ enum class EntityType
 	NONE,
 	PLAYER,
 	NORMAL_ENERMY,
-	BULLET
+	BULLET,
+	GROUND
 };
 constexpr std::string_view GetStringOf(EntityType type)noexcept
 {

@@ -35,6 +35,7 @@ public:
 		if (components.find(N::type) == components.end())
 		{
 			std::cout << GetStringOf(type) << " didnt init " <<GetStringOf(N::type) << std::endl;
+			__debugbreak();
 			return nullptr;
 		}
 		if (strcmp(typeid(N).name(), typeid(*components[N::type]).name()) != 0)
@@ -46,6 +47,7 @@ public:
 		//end debuger
 		return std::dynamic_pointer_cast<N>(components[N::type]); 
 	}
+	
 	int GetId() const { return m_id; }
 	Entity* SetType(EntityType t) { type = t; return this; }
 	Entity* SetState(EntityState es) { state = es; return this; }

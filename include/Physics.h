@@ -33,11 +33,20 @@ public:
 	template<typename N>
 	std::shared_ptr<N> Get()
 	{
+		//debuger
 		if (physics.find(N::type) == physics.end())
 		{
+			std::cout << GetStringOf(type) << " didnt init " << GetStringOf(N::type) << std::endl;
 			__debugbreak();
 			return nullptr;
 		}
+		if (strcmp(typeid(N).name(), typeid(*physics[N::type]).name()) != 0)
+		{
+			std::cout << GetStringOf(type) << " doesnt have " << typeid(N).name() << ", must be " << typeid(*physics[N::type]).name() << std::endl;
+			__debugbreak();
+			return nullptr;
+		}
+		//end debuger
 		return std::dynamic_pointer_cast<N>(physics[N::type]);
 
 	}

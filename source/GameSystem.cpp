@@ -24,7 +24,6 @@ void GameSystem::Spawn::Player(const Vec2d<float>& pos,SDL_Renderer* renderer)
 	 auto col = player->Get<Collider>()->GetHitBox().SetRect(t->GetPos().y, t->GetPos().x, 100, 100);
 	 //image
 	 TextureManager& tm = TextureManager::GetInstance();
-	 tm.AddTexture(player->GetType(), TextureType::NONE, renderer, "assets/image/Run.png", 2, 3);
 	 auto img = player->Get<Imager>()->SetTexture(&tm.GetTexture(player->GetType(), TextureType::NONE));
 	//render
 	 auto r = player->Get<Renderer>();
@@ -43,16 +42,15 @@ void GameSystem::Spawn::NormalEnermy(const Vec2d<float>& pos, SDL_Renderer* rend
 	auto t = enermy->Get<Transformer>();
 	t->SetPos(pos);
 	auto col = enermy->Get<Collider>()->GetHitBox().SetRect(t->GetPos().y, t->GetPos().x, 100, 100);
-	auto player = enermy->Get<Physics>();
-	player->Add<Gravity>()
+	auto p = enermy->Get<Physics>();
+	p->Add<Gravity>()
 		->Add<Drag>()
 		->Add<Movement>()
 		->Add<Reaction>();
 	auto r = enermy->Get<Renderer>();
-
 	r->SetRenderer(renderer);
 	TextureManager& tm = TextureManager::GetInstance();
-	tm.AddTexture(enermy->GetType(), TextureType::NONE, renderer, "assets/image/Run.png", 2, 3);
+
 
 	enermy->Get<Imager>()->SetTexture(&tm.GetTexture(enermy->GetType(), TextureType::NONE));
 }
@@ -73,8 +71,16 @@ void GameSystem::Spawn::Bullet(const Vec2d<float>& pos, SDL_Renderer* renderer, 
 	bullet->Get<BulletController>()->SetSpeed(30.0)
 		->SetVelocity(velocity);
 	TextureManager& tm = TextureManager::GetInstance();
-	
 	bullet->Get<Imager>()->SetTexture(&tm.GetTexture(bullet->GetType(), TextureType::NONE));
+}
+void GameSystem::Spawn::Ground(const Vec2d<float>& pos, SDL_Renderer* renderer)
+{
+	EntityManager& em = EntityManager::GetInstance();
+	auto ground = em.AddEntity(EntityType::GROUND);
+	ground->Add<BulletTransformer>()
+		->Add<Imager>()
+		->Add<Collider>()
+		->Add<Renderer>();
 }
 void GameSystem::Recall::Update()
 {
@@ -86,7 +92,7 @@ void GameSystem::Recall::Update()
 		{
 			auto b_t = bullets->Get<BulletTransformer>();
 			float distance = (player_t->GetPos() - b_t->GetPos()).Length();
-			if (distance > 2000.0)
+			if (distance > 20000.0)
 			{
 				bullets->SetState(EntityState::DEAD);
 			}
@@ -100,8 +106,7 @@ void GameSystem::Recall::Update()
 			{
 				vec_e.second.erase(vec_e.second.begin() + i);
 				i--;
-			}
-			
+			}		
 		}
 	}
 }
@@ -172,7 +177,7 @@ void GameSystem::HandleControl::Update()
 	}
 	for (auto& e : em.GetEntity(EntityType::NORMAL_ENERMY))
 	{
-		auto player = e->Get<Physics>();
+		auto p = e->Get<Physics>();
 		auto c = e->Get<AutoControl>();
 		for (ControlState cs : c->GetState())
 		{
@@ -183,18 +188,18 @@ void GameSystem::HandleControl::Update()
 			case ControlState::ATTACK:
 				break;
 			case ControlState::JUMP:
-				player->IncreaseForce({ 0.0,-5.0 });
-				player->Get<Gravity>()->SetAcceleration(1.0);
+				p->IncreaseForce({ 0.0,-5.0 });
+				p->Get<Gravity>()->SetAcceleration(1.0);
 				break;
 			case ControlState::RUN_LEFT:
-				player->Get<Movement>()->SetAcceleration(1.0f)
+				p->Get<Movement>()->SetAcceleration(1.0f)
 					->SetVelocity({ -1.0,0.0 });
-				player->Get<Drag>()->SetAcceleration(0.1);
+				p->Get<Drag>()->SetAcceleration(0.1);
 				break;
 			case ControlState::RUN_RIGHT:
-				player->Get<Movement>()->SetAcceleration(1.0f)
+				p->Get<Movement>()->SetAcceleration(1.0f)
 					->SetVelocity({ 1.0,0.0 });
-				player->Get<Drag>()->SetAcceleration(0.1);
+				p->Get<Drag>()->SetAcceleration(0.1);
 				break;
 			case ControlState::USING_SK1:
 				break;
@@ -214,8 +219,7 @@ void GameSystem::Physic::Update()
 	
 		if (t->GetOnGround())
 		{
-			if(p->GetForce().y>0.0) p->SetForce({ p->GetForce().x,0.0 });
-				
+			if(p->GetForce().y>0.0) p->SetForce({ p->GetForce().x,0.0 });				
 		}
 		else
 		{
@@ -277,6 +281,7 @@ void GameSystem::Transform::Update()
 void GameSystem::Collide::Update()
 {
 	EntityManager& em = EntityManager::GetInstance();
+	//player with normal enermy
 	for (auto& player : em.GetEntity(EntityType::PLAYER))
 	{
 		auto player_col = player->Get<Collider>();
@@ -301,20 +306,32 @@ void GameSystem::Collide::Update()
 				}
 			}
 		}
-		for (auto& bullet : em.GetEntity(EntityType::BULLET))
+		
+	}
+	//bullet with all
+	for (auto& bullet : em.GetEntity(EntityType::BULLET))
+	{
+		auto& bullet_col = bullet->Get<Collider>();
+		auto bullet_t = bullet->Get<BulletTransformer>();
+		bullet_col->GetHitBox().SetRect(bullet_t->GetPos().y, bullet_t->GetPos().x, bullet_col->GetHitBox().GetRect().w, bullet_col->GetHitBox().GetRect().h);
+		for (auto& normal_enermy : em.GetEntity(EntityType::NORMAL_ENERMY))
 		{
-			auto& bullet_col = bullet->Get<Collider>();
-
-			for (auto& player : em.GetEntity(EntityType::PLAYER))
+			auto& normal_enermy_col = normal_enermy->Get<Collider>();
+			if (bullet_col->GetHitBox().CollideDetect(normal_enermy_col->GetHitBox()))
+			
 			{
-				auto& player_col = player->Get<Collider>();
-				if (bullet_col->GetHitBox().CollideDetect(player_col->GetHitBox()))
-				{
-					bullet->SetState(EntityState::DEAD);
+				bullet->SetState(EntityState::DEAD);
 
-				}
 			}
+		}
+		for (auto& player : em.GetEntity(EntityType::PLAYER))
+		{
+			auto& player_col = player->Get<Collider>();
+			if (bullet_col->GetHitBox().CollideDetect(player_col->GetHitBox()))
+			{
+				bullet->SetState(EntityState::DEAD);
 
+			}
 		}
 	}
 
@@ -329,11 +346,11 @@ void GameSystem::Render::Update()
 	EntityManager& em = EntityManager::GetInstance();
 	for (auto& e : em.GetEntity(EntityType::PLAYER))
 	{
-		auto r  = e->Get<Renderer>();
-		auto t = e->Get<Transformer>();
-		auto col = e->Get<Collider>();
+		auto r = e->Get<Renderer>();
+		auto pos = e->Get<Transformer>()->GetPos();
+		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
 		auto img = e->Get<Imager>();
-		r->SetDstRect({ t->GetPos().x - g_pos.x,t->GetPos().y - g_pos.y,col->GetHitBox().GetRect().w,col->GetHitBox().GetRect().h })
+		r->SetDstRect({ pos.x - g_pos.x,pos.y - g_pos.y,rect.w,rect.h })
 			->SetDelay(3)
 			->SetTexture(img->GetTexture())
 			->Update();
@@ -341,24 +358,26 @@ void GameSystem::Render::Update()
 	for (auto& e : em.GetEntity(EntityType::NORMAL_ENERMY))
 	{
 		auto r = e->Get<Renderer>();
-		auto t = e->Get<Transformer>();
-		auto col = e->Get<Collider>();
+		auto pos = e->Get<Transformer>()->GetPos();
+		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
 		auto img = e->Get<Imager>();
-		r->SetDstRect({ t->GetPos().x-g_pos.x,t->GetPos().y-g_pos.y,col->GetHitBox().GetRect().w,col->GetHitBox().GetRect().h })
-			->SetDelay( 3)
+		r->SetDstRect({ pos.x - g_pos.x,pos.y - g_pos.y,rect.w,rect.h })
+			->SetDelay(3)
 			->SetTexture(img->GetTexture())
 			->Update();
 	}
 	for (auto& e : em.GetEntity(EntityType::BULLET))
 	{
 		auto r = e->Get<Renderer>();
-		auto t = e->Get<BulletTransformer>();
-		auto col = e->Get<Collider>();
+		auto pos = e->Get<BulletTransformer>()->GetPos();
+		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
 		auto img = e->Get<Imager>();
-		r->SetDstRect({ t->GetPos().x - g_pos.x,t->GetPos().y - g_pos.y,col->GetHitBox().GetRect().w,col->GetHitBox().GetRect().h })
+		r->SetDstRect({ pos.x - g_pos.x,pos.y - g_pos.y,rect.w,rect.h })
 			->SetDelay(3)
 			->SetTexture(img->GetTexture())
 			->Update();
+
+
 	}
 }
 

@@ -8,6 +8,17 @@ enum class PhysicType
 	MOVE,
 	REACT
 };
+constexpr std::string_view GetStringOf(PhysicType type)
+{
+	switch (type)
+	{
+	case PhysicType::GRAVITY:  return "PhysicType::GRAVITY";
+	case PhysicType::JUMP: return "PhysicType::JUMP";
+	case PhysicType::DRAG:  return "PhysicType::DRAG";
+	case PhysicType::REACT: return "PhysicType::REACT";
+	default: return "Unknown";
+	}
+}
 class Mess
 {
 private:
@@ -25,8 +36,10 @@ protected:
 	float a{};
 	Vec2d<float> vel{};
 public:
+
 	BasePhysic() {};
 	virtual ~BasePhysic() {};
+	virtual PhysicType GetType() =0;
 	BasePhysic* SetAcceleration(float a) { this->a = a; return this; }
 	BasePhysic* SetVelocity(const Vec2d<float>& vel) { this->vel = vel; return this; }
 	//update to get new value
@@ -44,6 +57,8 @@ public:
 	static constexpr PhysicType type = PhysicType::GRAVITY;	
 	Gravity() { vel = { 0.0,1.0 }; a = 1.0f; }
 	~Gravity() {};
+	PhysicType GetType() override { return type; }
+
 	void Update(const Mess& m) override { f = vel * m.GetVal() * a; vel.Normalize(); }
 };
 
@@ -54,7 +69,7 @@ public:
 	static constexpr PhysicType type = PhysicType::DRAG;
 	Drag() { }
 	~Drag() {};
-
+	PhysicType GetType() override { return type; }
 	 void Update(const Mess& m) override{ f = vel * m.GetVal() * a; vel.Normalize();}
 };
 class Movement:public BasePhysic
@@ -65,6 +80,7 @@ public:
 	static constexpr PhysicType type = PhysicType::MOVE;
 	Movement() {}
 	~Movement() {}
+	PhysicType GetType() override { return type; }
 	Movement* SetSpeed(float s) { speed = s; return this; }
 	float GetSpeed() const { return speed; }
 	void Update(const Mess& m) override { f = vel * m.GetVal() * a; vel.Normalize();}
@@ -76,6 +92,7 @@ public:
 	static constexpr PhysicType type = PhysicType::REACT;
 	Reaction() {}
 	~Reaction() {}
+	PhysicType GetType() override { return type; }
 	void Update(const Mess& m) override { f = vel * m.GetVal() * a; vel.Normalize(); }
 };
 

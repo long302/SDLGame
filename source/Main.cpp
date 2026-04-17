@@ -15,7 +15,7 @@ int main()
 	spec.format = SDL_AUDIO_S32;
 	spec.channels = 2;
 
-	MIX_Mixer* mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK,&spec);
+	MIX_Mixer* mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
 	
 	AudioManager& am = AudioManager::GetInstance();
 	am.SetMixer(mixer)->AddAudio(EntityType::NONE, AudioType::NONE, "assets/sound/tokyo.mp3");
@@ -24,16 +24,18 @@ int main()
 	SDL_Window* window = SDL_CreateWindow("InfinityBattle", WIDTH, HEIGHT, SDL_WINDOW_RESIZABLE);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
 	int t=100;
-	for(t=0;t<1;t++)
+	for (t = 0;t < 1;t++)
 	{
-		GameSystem::Spawn::Player( { 50.0f+static_cast<float>(t),50.0f + static_cast<float>(t) },renderer);
+		GameSystem::Spawn::Player({ 50.0f + static_cast<float>(t),50.0f + static_cast<float>(t) }, renderer);
 	}
 	for (t = 0; t < 1; t++)
 	{
-		GameSystem::Spawn::NormalEnermy( { 50.0f + static_cast<float>(t),50.0f + static_cast<float>(t) }, renderer);
+		GameSystem::Spawn::NormalEnermy({ 50.0f + static_cast<float>(t),50.0f + static_cast<float>(t) }, renderer);
 	}
 	TextureManager& tm = TextureManager::GetInstance();
 	tm.AddTexture(EntityType::BULLET, TextureType::NONE, renderer, "assets/image/Laser.png", 1, 1);
+	tm.AddTexture(EntityType::PLAYER, TextureType::NONE, renderer, "assets/image/Run.png", 2, 3);
+	tm.AddTexture(EntityType::NORMAL_ENERMY, TextureType::NONE, renderer, "assets/image/Run.png", 2, 3);
 	bool end{false};
 	int count = 0;
 	while (!end)
@@ -68,7 +70,7 @@ int main()
 		float fps = 60.0;
 		if (time <1000.0/fps)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds((long long)(1000.0/fps-time)));
+			std::this_thread::sleep_for(std::chrono::milliseconds((long long)(1000.0 / fps - time)));
 		}
 		timer.SetPoint2();
 		std::cout << timer.GetDurationSec()<<"\n";

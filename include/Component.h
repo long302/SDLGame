@@ -14,7 +14,7 @@ enum class ComponentType
 	RENDER,
 	PHYSIC
 };
-constexpr std::string_view GetStringOf(ComponentType type)noexcept
+constexpr std::string_view GetStringOf(ComponentType type)
 {
 	switch (type)
 	{

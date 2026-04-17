@@ -8,6 +8,7 @@ namespace GameSystem
 		void Player(const Vec2d<float>& pos,SDL_Renderer* renderer);
 		void NormalEnermy( const Vec2d<float>& pos, SDL_Renderer* renderer);
 		void Bullet(const Vec2d<float>& pos, SDL_Renderer* renderer, const Vec2d<float>& veclocity);
+		void Ground( const Vec2d<float>& pos, SDL_Renderer* renderer);
 	}
 	namespace Recall
 	{
