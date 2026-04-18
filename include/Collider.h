@@ -33,7 +33,7 @@ public:
 		float left = std::max(rect.GetLeft(), hb.GetRect().GetLeft());
 		float right = std::min(rect.GetRight(), hb.GetRect().GetRight());
 		float bottom = std::min(rect.GetBottom(), hb.GetRect().GetBottom());
-		return { left,top,right - left,bottom - top };
+		return { left,top,(float)(right - left),(float)(bottom - top) };
 	}
 };
 class Collider: public Component

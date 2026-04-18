@@ -9,6 +9,7 @@ enum class ControlState
 	RUN_LEFT,
 	RUN_RIGHT,
 	JUMP,
+	FALL,
 	ATTACK,
 	USING_SK1,
 	USING_SK2

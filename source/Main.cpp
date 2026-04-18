@@ -1,7 +1,8 @@
-
-#include"GameSystem.h"
+#include"MapMethods.h"
 #include<thread>
 #include"SDL3_mixer/SDL_mixer.h"
+#include"SDL3_ttf/SDL_ttf.h"
+#include"DataAssets.h"
 TimeCalculate timer;
 
 int main()
@@ -9,44 +10,41 @@ int main()
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_Init(SDL_INIT_AUDIO);
 	MIX_Init();
-
+	TTF_Init();
 	SDL_AudioSpec spec{};
 	spec.freq = 44100;
 	spec.format = SDL_AUDIO_S32;
 	spec.channels = 2;
-
 	MIX_Mixer* mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
-	
-	AudioManager& am = AudioManager::GetInstance();
-	am.SetMixer(mixer)->AddAudio(EntityType::NONE, AudioType::NONE, "assets/sound/tokyo.mp3");
-	am.SetMixer(mixer)->AddAudio(EntityType::PLAYER, AudioType::SHOOT, "assets/sound/shot.wav");
-	am.PlayAudio(EntityType::NONE, AudioType::NONE);
+	LoadData::AllAudio(mixer);
 	SDL_Window* window = SDL_CreateWindow("InfinityBattle", WIDTH, HEIGHT, SDL_WINDOW_RESIZABLE);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
-	int t=100;
+	LoadData::AllTexture(renderer);
+	float t = 100;
 	for (t = 0;t < 1;t++)
 	{
-		GameSystem::Spawn::Player({ 50.0f + static_cast<float>(t),50.0f + static_cast<float>(t) }, renderer);
+		GameSystem::Spawn::Player({ 50.0f + t,50.0f + t }, renderer);
 	}
 	for (t = 0; t < 1; t++)
 	{
-		GameSystem::Spawn::NormalEnermy({ 50.0f + static_cast<float>(t),50.0f + static_cast<float>(t) }, renderer);
+		GameSystem::Spawn::NormalEnermy({ 50.0f + t,50.0f + t }, renderer);
 	}
 	for (t = 0; t < 10; t++)
 	{
-		GameSystem::Spawn::Ground({ static_cast<float>(t)*300.0f,500.0f }, renderer);
+		GameSystem::Spawn::Ground({ t * 300.0f,500.0f }, renderer);
 	}
 	for (t = 0; t < 1; t++)
 	{
-		GameSystem::Spawn::Ground({ static_cast<float>(t) * 400.0f,350.0f }, renderer);
+		GameSystem::Spawn::Ground({ t * 400.0f,250.0f }, renderer);
 	}
-	TextureManager& tm = TextureManager::GetInstance();
-	tm.AddTexture(EntityType::BULLET, TextureType::NONE, renderer, "assets/image/Laser.png", 1, 1);
-	tm.AddTexture(EntityType::PLAYER, TextureType::NONE, renderer, "assets/image/Run.png", 2, 3);
-	tm.AddTexture(EntityType::NORMAL_ENERMY, TextureType::NONE, renderer, "assets/image/Run.png", 2, 3);
-	tm.AddTexture(EntityType::GROUND, TextureType::NONE,renderer, "assets/image/ground.png",1,1);
+	int choosen;
+	std::cin >> choosen;
+	if (choosen==1)
+	{
+		Map::Create(renderer);
+	}
 	bool end{false};
-	int count = 0;
+	Map::Load();
 	while (!end)
 	{
 		timer.SetPoint1();
@@ -70,6 +68,7 @@ int main()
 		GameSystem::Physic::Update();
 		GameSystem::Transform::Update();
 		GameSystem::Collide::Update();
+		GameSystem::Assets::Update();
 		GameSystem::Render::Update();
 		GameSystem::Recall::Update();
 		//
@@ -82,7 +81,7 @@ int main()
 			std::this_thread::sleep_for(std::chrono::milliseconds((long long)(1000.0 / fps - time)));
 		}
 		timer.SetPoint2();
-		std::cout << timer.GetDurationSec()<<"\n";
+		//std::cout << timer.GetDurationSec()<<"\n";
 	}
 
 	SDL_DestroyRenderer(renderer);

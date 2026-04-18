@@ -13,18 +13,18 @@ enum class EntityType
 	BULLET,
 	GROUND
 };
-constexpr std::string_view GetStringOf(EntityType type)noexcept
-{
-	switch (type)
+	constexpr std::string_view GetStringOf(EntityType type)noexcept
 	{
-	case EntityType::NONE:   return "EntityType::NONE";
-	case EntityType::PLAYER: return "EntityType::PLAYER";
-	case EntityType::NORMAL_ENERMY:  return "EntityType::NORMAL_ENEMY";
-	case EntityType::BULLET: return "EntityType::BULLET";
-	case EntityType::GROUND: return "EntityType::GROUND";
-	default: return "Unknown";
+		switch (type)
+		{
+		case EntityType::NONE:   return "EntityType::NONE";
+		case EntityType::PLAYER: return "EntityType::PLAYER";
+		case EntityType::NORMAL_ENERMY:  return "EntityType::NORMAL_ENEMY";
+		case EntityType::BULLET: return "EntityType::BULLET";
+		case EntityType::GROUND: return "EntityType::GROUND";
+		default: return "Unknown";
+		}
 	}
-}
 enum class EntityState
 {
 	NONE,

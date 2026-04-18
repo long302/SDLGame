@@ -13,7 +13,7 @@ public:
 	Transformer(const Vec2d<float>& p){ pos=p; }
 	~Transformer() = default;
 
-	const Vec2d<float>& GetPos() { return pos; }
+	Vec2d<float>& GetPos() { return pos; }
 	bool GetOnGround() const { return on_ground; }
 	Transformer* SetOnGround(bool value) { on_ground = value; return this; }
 

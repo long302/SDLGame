@@ -20,11 +20,11 @@ void GameSystem::Spawn::Player(const Vec2d<float>& pos,SDL_Renderer* renderer)
 		 ->Add<Drag>()
 		 ->Add<Movement>()
 		 ->Add<Reaction>();
+	 player_p->Get<Gravity>()->SetAcceleration(1.0);
 	 //collide
 	 auto col = player->Get<Collider>()->GetHitBox().SetRect(t->GetPos().y, t->GetPos().x, 100, 100);
 	 //image
 	 TextureManager& tm = TextureManager::GetInstance();
-	 auto img = player->Get<Imager>()->SetTexture(&tm.GetTexture(player->GetType(), TextureType::NONE));
 	//render
 	 auto r = player->Get<Renderer>();
 	 r->SetRenderer(renderer);
@@ -158,8 +158,7 @@ void GameSystem::HandleControl::Update()
 			case ControlState::ATTACK:
 				break;
 			case ControlState::JUMP:
-				p->IncreaseForce({ 0.0,-5.0 });
-				p->Get<Gravity>()->SetAcceleration(1.0);
+				p->IncreaseForce({ 0.0,-100.0 });
 				break;
 			case ControlState::RUN_LEFT:
 				p->Get<Movement>()->SetAcceleration(1.0f)
@@ -198,18 +197,16 @@ void GameSystem::HandleControl::Update()
 			case ControlState::ATTACK:
 				break;
 			case ControlState::JUMP:
-				p->IncreaseForce({ 0.0,-5.0 });
-				p->Get<Gravity>()->SetAcceleration(1.0);
+				p->IncreaseForce({ 0.0,-10.0 });
+
 				break;
 			case ControlState::RUN_LEFT:
 				p->Get<Movement>()->SetAcceleration(1.0f)
 					->SetVelocity({ -1.0,0.0 });
-				p->Get<Drag>()->SetAcceleration(0.1);
 				break;
 			case ControlState::RUN_RIGHT:
 				p->Get<Movement>()->SetAcceleration(1.0f)
 					->SetVelocity({ 1.0,0.0 });
-				p->Get<Drag>()->SetAcceleration(0.1);
 				break;
 			case ControlState::USING_SK1:
 				break;
@@ -356,6 +353,7 @@ void GameSystem::Collide::Update()
 			auto player_p = player->Get<Physics>();
 			const auto& player_v = player_p->GetVelocity();
 			player_col->GetHitBox().SetRect(player_t->GetPos().y, player_t->GetPos().x, player_col->GetHitBox().GetRect().w, player_col->GetHitBox().GetRect().h);
+			bool temp = false;
 			if (ground_col->GetHitBox().CollideDetect(player_col->GetHitBox()))
 			{
 				Rectangle overlab = ground_col->GetHitBox().GetOverlab(player_col->GetHitBox());
@@ -364,62 +362,98 @@ void GameSystem::Collide::Update()
 				if (player_rect.GetBottom() - player_v.y <= ground_rect.GetTop())//player o tren ground
 				{
 					player_t->Decrease({ 0.0,overlab.h + 1.0f });
-					player_t->SetOnGround(true);
-							
+					temp = true;		
 				}
-				if (player_rect.GetTop() - player_v.y >= ground_rect.GetBottom())//player o duoi ground
+				else if (player_rect.GetTop() - player_v.y >= ground_rect.GetBottom())//player o duoi ground
 				{
 					player_t->Increase({ 0.0,overlab.h + 1.0f });
+					player_p->SetForce({player_p->GetForce().x,0.0f});
 				}
-				if (player_rect.GetLeft() - player_v.x >= ground_rect.GetRight()) //player o ben phai ground
+				else if (player_rect.GetLeft() - player_v.x >= ground_rect.GetRight()) //player o ben phai ground
 				{
+					std::cout << "Collide\n";
 					player_t->Increase({ overlab.w + 1.0f,0.0 });
 				}
-				if (player_rect.GetRight() - player_v.x <= ground_rect.GetLeft()) //player o ben trai ground
+				else if (player_rect.GetRight() - player_v.x <= ground_rect.GetLeft()) //player o ben trai ground
 				{
+					std::cout << "Collide\n";
 					player_t->Decrease({ overlab.w + 1.0f,0.0 });
 				}
 			}
+			player_t->SetOnGround(temp);
+		
 		}
-		for (auto& enermy : em.GetEntity(EntityType::NORMAL_ENERMY))
+		for (auto& normal_enemy : em.GetEntity(EntityType::NORMAL_ENERMY))
 		{
-			auto enermy_col = enermy->Get<Collider>();
-			auto enermy_t = enermy->Get<Transformer>();
-			auto enermy_p = enermy->Get<Physics>();
-			const auto& enermy_v = enermy_p->GetVelocity();
-			enermy_col->GetHitBox().SetRect(enermy_t->GetPos().y, enermy_t->GetPos().x, enermy_col->GetHitBox().GetRect().w, enermy_col->GetHitBox().GetRect().h);
-			if (ground_col->GetHitBox().CollideDetect(enermy_col->GetHitBox()))
-			{
-				Rectangle overlab = ground_col->GetHitBox().GetOverlab(enermy_col->GetHitBox());
-				auto& ground_rect = ground_col->GetHitBox().GetRect();
-				auto& enermy_rect = enermy_col->GetHitBox().GetRect();
-				if (enermy_rect.GetBottom() - enermy_v.y <= ground_rect.GetTop())//enermy o tren ground
-				{
-					enermy_t->Decrease({ 0.0,overlab.h });
-					enermy_t->SetOnGround(true);
+			auto enemy_col = normal_enemy->Get<Collider>();
+			auto enemy_t = normal_enemy->Get<Transformer>();
+			auto enemy_p = normal_enemy->Get<Physics>();
+			const auto& enemy_v = enemy_p->GetVelocity();
 
-				}
-				if (enermy_rect.GetTop() - enermy_v.y >= ground_rect.GetBottom())//enermy o duoi ground
+			enemy_col->GetHitBox().SetRect(enemy_t->GetPos().y, enemy_t->GetPos().x,
+				enemy_col->GetHitBox().GetRect().w,
+				enemy_col->GetHitBox().GetRect().h);
+
+			bool temp = false;
+
+			if (ground_col->GetHitBox().CollideDetect(enemy_col->GetHitBox()))
+			{
+				Rectangle overlab = ground_col->GetHitBox().GetOverlab(enemy_col->GetHitBox());
+				auto& ground_rect = ground_col->GetHitBox().GetRect();
+				auto& enemy_rect = enemy_col->GetHitBox().GetRect();
+				if (enemy_rect.GetBottom() - enemy_v.y <= ground_rect.GetTop())
 				{
-					enermy_t->Increase({ 0.0,overlab.h });
+					enemy_t->Decrease({ 0.0, overlab.h + 1.0f });
+					temp = true;
 				}
-				if (enermy_rect.GetLeft() - enermy_v.x >= ground_rect.GetRight()) //enermy o ben phai ground
+				else if (enemy_rect.GetTop() - enemy_v.y >= ground_rect.GetBottom())
 				{
-					enermy_t->Increase({ overlab.w,0.0 });
+					enemy_t->Increase({ 0.0, overlab.h + 1.0f });
+					enemy_p->SetForce({ enemy_p->GetForce().x, 0.0f });
 				}
-				if (enermy_rect.GetRight() - enermy_v.x <= ground_rect.GetLeft()) //enermy o ben trai ground
+				else if (enemy_rect.GetLeft() - enemy_v.x >= ground_rect.GetRight())
 				{
-					enermy_t->Decrease({ overlab.w,0.0 });
+					enemy_t->Increase({ overlab.w + 1.0f, 0.0 });
+				}
+				else if (enemy_rect.GetRight() - enemy_v.x <= ground_rect.GetLeft())
+				{
+					enemy_t->Decrease({ overlab.w + 1.0f, 0.0 });
 				}
 			}
+			enemy_t->SetOnGround(temp);
 		}
 	}
-
 }
 void GameSystem::Assets::Update()
 {
 	EntityManager& em = EntityManager::GetInstance();
-	
+	TextureManager& tm = TextureManager::GetInstance();
+	for (auto& e : em.GetEntity(EntityType::PLAYER))
+	{
+		auto& cs = e->Get<Controller>()->GetState();
+		auto& img = e->Get<Imager>();
+		img->SetTextureType(TextureType::NONE);
+		if(!cs.empty())
+		{
+			switch (cs[cs.size() - 1])
+			{
+			case ControlState::JUMP:
+				img->SetTextureType(TextureType::JUMP);
+				break;
+			case ControlState::RUN_LEFT:
+				img->SetTextureType(TextureType::RUN_LEFT);
+				break;
+			case ControlState::RUN_RIGHT:
+				img->SetTextureType(TextureType::RUN_RIGHT);
+				break;
+			case ControlState::FALL:
+				img->SetTextureType(TextureType::FALL);
+				break;
+			}
+		}
+		img->SetTexture(&tm.GetTexture(e->GetType(), img->GetTextureType()));
+
+	}
 }
 void GameSystem::Render::Update()
 {

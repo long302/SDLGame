@@ -3,8 +3,27 @@
 #include"Component.h"
 enum class TextureType
 {
-	NONE
+	NONE,
+	RUN_LEFT,
+	RUN_RIGHT,
+	JUMP,
+	FALL,
+	USING_SKILL_1,
+
 };
+constexpr std::string_view GetStringOf(TextureType type)noexcept
+{
+	switch (type)
+	{
+	case TextureType::NONE:   return "TextureType::NONE";
+	case TextureType::RUN_LEFT: return "TextureType::RUN_LEFT";
+	case TextureType::RUN_RIGHT:  return "TextureType::RUN_RIGHT";
+	case TextureType::JUMP: return "TextureType::JUMP";
+	case TextureType::FALL: return "TextureType::FALL";
+	default: return "Unknown";
+	}	
+}
+
 class TextureManager;
 class Texture
 {
@@ -36,7 +55,15 @@ public:
 		return instance;
 	}
 	bool AddTexture(EntityType e_type,TextureType t_type,SDL_Renderer* renderer, const char* path, int row, int col);
-	Texture& GetTexture(EntityType e_type, TextureType tex_type)  { return textures[e_type][tex_type]; }
+	Texture& GetTexture(EntityType e_type, TextureType tex_type)  
+	{
+		if (textures.find(e_type) == textures.end())
+		{
+			std::cout << GetStringOf(e_type) << " doesnt have " << GetStringOf(tex_type) << std::endl;
+			__debugbreak();
+		}
+		return textures[e_type][tex_type];
+	}
 	TextureManager* DestroyTexture(EntityType e_type);
 	TextureManager(const TextureManager&) = delete;
 	TextureManager& operator=(const TextureManager&) = delete;

@@ -4,7 +4,8 @@ void Renderer::Update()
 {
 	if (renderer == nullptr || texture == nullptr)
 	{
-		std::cout << "Fail to render";
+		__debugbreak();
+		std::cout << "Fail to render\n";
 		return;
 	}
 	count_delay++;
@@ -22,10 +23,7 @@ void Renderer::Update()
 	{
 		count_row = 0;
 	}
-	
-	
-	//std::cout << count_row << " " << count_col << " " << count_delay << std::endl;
-	
+
 	int w, h;
 	w = texture->GetTexture()->w / texture->GetCol();
 	h = texture->GetTexture()->h / texture->GetRow();

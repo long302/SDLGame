@@ -20,12 +20,13 @@ void Physics::Update()
 		if (f.x < 0.0) f.x = -10.0;
 		if (f.x > 0.0) f.x = 10.0;
 	}
-	if (abs(f.y) > 10.0)
+	if (abs(f.y) > 20.0)
 	{
-		if (f.y < 0.0) f.y = -10.0;
-		if (f.y > 0.0) f.y = 10.0;
+		if (f.y < 0.0) f.y = -20.0;
+		if (f.y > 0.0) f.y = 20.0;
 	}
 	v = f/weight.GetVal();
+	std::cout << "Speed: " << v.x << ", " << v.y << std::endl;
 	if (physics.find(PhysicType::DRAG) != physics.end())
 	{
 		physics[PhysicType::DRAG]->SetVelocity({-v.x,(-v.y)*0.1f});
