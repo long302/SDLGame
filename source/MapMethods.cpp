@@ -20,10 +20,27 @@ void Map::Create(SDL_Renderer* renderer)
 	bool end{};
 	while (!end)
 	{
+		
 		SDL_RenderClear(renderer);
 		create = false;
 		mouse.Update();
-		SDL_PollEvent(&event);
+		while (SDL_PollEvent(&event))
+		{
+			if (event.type == SDL_EVENT_MOUSE_WHEEL)
+			{	
+				int y = event.wheel.y; 
+				if (y > 0)
+				{
+					scale += 0.1;
+				}
+				else if (y < 0)
+				{
+					scale -= 0.1;
+				}
+				if (scale < 0.1) scale = 0.1;
+				g_pos = mouse.GetRealPos() - ((mouse.GetScreenPos() / scale));
+			}
+		}
 		
 		if (key_board.GetState(Keys::KEY_0))
 		{
@@ -48,7 +65,7 @@ void Map::Create(SDL_Renderer* renderer)
 			create = true;
 		}
 		temp.img.SetTexture(&tm.GetTexture(target_type, TextureType::NONE));
-		temp.t.SetPos(mouse.GetPos());
+		temp.t.SetPos(mouse.GetRealPos());
 		
 		switch (target_type)
 		{
@@ -56,14 +73,14 @@ void Map::Create(SDL_Renderer* renderer)
 			temp.c.GetHitBox().SetRect(temp.t.GetPos().x, temp.t.GetPos().y, 100, 100);
 			if (create)
 			{
-				GameSystem::Spawn::Player(temp.t.GetPos()+ g_pos, renderer);
+				GameSystem::Spawn::Player(temp.t.GetPos(), renderer);
 			}
 			break;
 		case EntityType::GROUND:
-			temp.c.GetHitBox().SetRect(temp.t.GetPos().x, temp.t.GetPos().y, 400, 100);
+			temp.c.GetHitBox().SetRect(temp.t.GetPos().x, temp.t.GetPos().y, 400, 200);
 			if (create)
 			{
-				GameSystem::Spawn::Ground(temp.t.GetPos() + g_pos, renderer);
+				GameSystem::Spawn::Ground(temp.t.GetPos() , renderer);
 				std::cout << "spawn an Ground\n";
 			}
 			break;
@@ -71,7 +88,7 @@ void Map::Create(SDL_Renderer* renderer)
 			temp.c.GetHitBox().SetRect(temp.t.GetPos().x , temp.t.GetPos().y, 100, 100);
 			if (create)
 			{
-				GameSystem::Spawn::NormalEnermy(temp.t.GetPos() + g_pos, renderer);
+				GameSystem::Spawn::NormalEnermy(temp.t.GetPos() , renderer);
 			}
 			break;
 		}
@@ -80,7 +97,7 @@ void Map::Create(SDL_Renderer* renderer)
 		GameSystem::Assets::Update();
 		GameSystem::Render::Update();
 
-		temp.r.SetDstRect({ temp.t.GetPos().x,temp.t.GetPos().y,temp.c.GetHitBox().GetRect().w,temp.c.GetHitBox().GetRect().h })->SetTexture(temp.img.GetTexture());
+		temp.r.SetDstRect({ (temp.t.GetPos().x - g_pos.x) * scale,(temp.t.GetPos().y - g_pos.y) * scale,temp.c.GetHitBox().GetRect().w *scale,temp.c.GetHitBox().GetRect().h * scale })->SetTexture(temp.img.GetTexture());
 		temp.r.Update();
 		
 		SDL_RenderPresent(renderer);

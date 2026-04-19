@@ -37,7 +37,7 @@ int main()
 	{
 		GameSystem::Spawn::Ground({ t * 400.0f,250.0f }, renderer);
 	}
-	int choosen;
+	int choosen{};
 	std::cin >> choosen;
 	if (choosen==1)
 	{
@@ -57,7 +57,21 @@ int main()
 			}
 			else
 			{
-
+				if (event.type == SDL_EVENT_MOUSE_WHEEL)
+				{
+					const Vec2d<float> old_pos = mouse.GetRealPos();
+					int y = event.wheel.y;
+					if (y > 0)
+					{
+						scale += 0.1;
+					}
+					else if (y < 0)
+					{
+						scale -= 0.1;
+					}
+					if (scale < 0.1) scale = 0.1;
+					g_pos = old_pos - ((mouse.GetScreenPos() / scale));
+				}
 			}
 		}
 

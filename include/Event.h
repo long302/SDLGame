@@ -71,12 +71,14 @@ enum class Keys
 class Mouse
 {
 private:
-    Vec2d<float> pos{};
+    Vec2d<float> screen_pos{};
+    Vec2d<float> real_pos{};
     Uint32 state{};
 public:
     Mouse();
     ~Mouse() = default;
-    const Vec2d<float>& GetPos() const { return pos; }
+    const Vec2d<float>& GetScreenPos() const { return screen_pos; }
+    const Vec2d<float>& GetRealPos() const { return real_pos; }
     const bool GetLeftState() const { return state & SDL_BUTTON_LMASK; }
     const bool GetRightState() const { return state & SDL_BUTTON_RMASK; }
     const bool GetMidState() const { return state & SDL_BUTTON_MMASK; }

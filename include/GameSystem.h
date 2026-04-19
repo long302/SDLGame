@@ -44,5 +44,5 @@ namespace GameSystem
 	}
 
 }
-//input(skill,....) ->move_object->Physic ->Transform -> Collider -> transform -> render
+//input(skill,....) ->move_object->Physic ->Transform -> Collider ->Assets -> render
 

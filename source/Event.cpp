@@ -6,16 +6,17 @@ KeyBoard key_board;
 
 Mouse::Mouse()
 {
-	state = SDL_GetMouseState(&pos.x, &pos.y);
+	state = SDL_GetMouseState(&screen_pos.x, &screen_pos.y);
 }
 void Mouse::Update()
 {
-	Vec2d<float> old_pos = pos;
-	state = SDL_GetMouseState(&pos.x, &pos.y);
+	Vec2d<float> old_pos = screen_pos;
+	state = SDL_GetMouseState(&screen_pos.x, &screen_pos.y);
 	if (GetRightState())
 	{
-		g_pos -= (pos - old_pos);
+		g_pos -= (screen_pos - old_pos)/scale;
 	}
+	real_pos = g_pos + screen_pos / scale;
 }
 KeyBoard::KeyBoard()
 {

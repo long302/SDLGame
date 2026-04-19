@@ -1,7 +1,7 @@
 #include "Controller.h"
 void Controller::Update()
 {
-	//state cang ve sau do uu tien duoc chon lam texture cang cao
+	
 	state.clear();
 	if (key_board.GetState(Keys::KEY_A)) state.push_back( ControlState::RUN_LEFT);
 	if (key_board.GetState(Keys::KEY_D)) state.push_back(ControlState::RUN_RIGHT);

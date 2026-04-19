@@ -30,7 +30,6 @@ public:
 	Renderer* SetSrcRect(const SDL_FRect& rect) { src = rect; return this; }
 	Renderer* SetDstRect(const SDL_FRect& rect) { dst = rect; return this; }
 	Renderer* SetDelay(int delay) { this->delay = delay; return this; }
-
 	SDL_Renderer* GetRenderer() { return renderer; }
 	void Update() override;
 };

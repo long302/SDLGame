@@ -13,7 +13,6 @@ void GameSystem::Spawn::Player(const Vec2d<float>& pos,SDL_Renderer* renderer)
 	 //transform
 	 auto t = player->Get<Transformer>();
 	 t->SetPos(pos);
-
 	 //physic
 	 auto player_p = player->Get<Physics>();
 	 player_p->Add<Gravity>()
@@ -50,8 +49,6 @@ void GameSystem::Spawn::NormalEnermy(const Vec2d<float>& pos, SDL_Renderer* rend
 	auto r = enermy->Get<Renderer>();
 	r->SetRenderer(renderer);
 	TextureManager& tm = TextureManager::GetInstance();
-
-
 	enermy->Get<Imager>()->SetTexture(&tm.GetTexture(enermy->GetType(), TextureType::NONE));
 }
 void GameSystem::Spawn::Bullet(const Vec2d<float>& pos, SDL_Renderer* renderer, const Vec2d<float>& velocity)
@@ -90,7 +87,6 @@ void GameSystem::Spawn::Ground(const Vec2d<float>& pos, SDL_Renderer* renderer)
 	col->GetHitBox().SetRect(0, 0, 400, 100);
 	auto r = ground->Get<Renderer>();
 	r->SetRenderer(renderer);
-
 }	
 void GameSystem::Recall::Update()
 {
@@ -173,7 +169,7 @@ void GameSystem::HandleControl::Update()
 				auto t = e->Get<Transformer>();
 				auto r = e->Get<Renderer>();
 				auto p = e->Get<Physics>();
-				Vec2d<float> vel = mouse.GetPos()+ g_pos - col->GetHitBox().GetRect().GetMidPos();
+				Vec2d<float> vel = mouse.GetRealPos() - col->GetHitBox().GetRect().GetMidPos();
 				vel.Normalize();
 				p->IncreaseForce(vel * -1 );
 				GameSystem::Spawn::Bullet(col->GetHitBox().GetRect().GetMidPos() + (vel * (col->GetHitBox().GetRect().w+ col->GetHitBox().GetRect().h) / 2.0),
@@ -464,7 +460,7 @@ void GameSystem::Render::Update()
 		auto pos = e->Get<Transformer>()->GetPos();
 		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
 		auto img = e->Get<Imager>();
-		r->SetDstRect({ pos.x - g_pos.x,pos.y - g_pos.y,rect.w,rect.h })
+		r->SetDstRect({ (pos.x - g_pos.x) * scale,(pos.y - g_pos.y) * scale,rect.w * scale,rect.h * scale })
 			->SetDelay(3)
 			->SetTexture(img->GetTexture())
 			->Update();
@@ -475,7 +471,7 @@ void GameSystem::Render::Update()
 		auto pos = e->Get<Transformer>()->GetPos();
 		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
 		auto img = e->Get<Imager>();
-		r->SetDstRect({ pos.x - g_pos.x,pos.y - g_pos.y,rect.w,rect.h })
+		r->SetDstRect({ (pos.x - g_pos.x) * scale,(pos.y - g_pos.y) * scale,rect.w * scale,rect.h * scale })
 			->SetDelay(3)
 			->SetTexture(img->GetTexture())
 			->Update();
@@ -486,7 +482,7 @@ void GameSystem::Render::Update()
 		auto pos = e->Get<BulletTransformer>()->GetPos();
 		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
 		auto img = e->Get<Imager>();
-		r->SetDstRect({ pos.x - g_pos.x,pos.y - g_pos.y,rect.w,rect.h })
+		r->SetDstRect({ (pos.x - g_pos.x) * scale,(pos.y - g_pos.y) * scale,rect.w * scale,rect.h * scale })
 			->SetDelay(3)
 			->SetTexture(img->GetTexture())
 			->Update();
@@ -499,7 +495,7 @@ void GameSystem::Render::Update()
 		auto pos = e->Get<BulletTransformer>()->GetPos();
 		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
 		auto img = e->Get<Imager>();
-		r->SetDstRect({ pos.x - g_pos.x,pos.y - g_pos.y,rect.w,2.0f*rect.h })
+		r->SetDstRect({ (pos.x - g_pos.x) * scale,(pos.y - g_pos.y) * scale,rect.w * scale,rect.h * 2.0f* scale })
 			->SetDelay(3)
 			->SetTexture(img->GetTexture())
 			->Update();

@@ -119,4 +119,6 @@ public:
 		return *this;
 	}
 };
+extern Vec2d<float> size_screen;
 extern Vec2d<float> g_pos;
+extern float scale;
