@@ -9,28 +9,28 @@ Physics::~Physics()
 
 void Physics::Update()
 {
-	const Vec2d<float> old_v = v;
 	for (auto p : physics)
 	{
 		p.second->Update(weight);
 		f += p.second->GetForce();
 	}
-	if (abs(f.x) > 10.0)
+	if (abs(f.x) > max_f.x)
 	{
-		if (f.x < 0.0) f.x = -10.0;
-		if (f.x > 0.0) f.x = 10.0;
+		if (f.x < 0.0) f.x = -max_f.x;
+		if (f.x > 0.0) f.x = max_f.x;
 	}
-	if (abs(f.y) > 20.0)
+	if (abs(f.y) > max_f.y)
 	{
-		if (f.y < 0.0) f.y = -20.0;
-		if (f.y > 0.0) f.y = 20.0;
+		if (f.y < 0.0) f.y = -max_f.y;
+		if (f.y > 0.0) f.y = max_f.y;
 	}
 	v = f/weight.GetVal();
-	std::cout << "Speed: " << v.x << ", " << v.y << std::endl;
 	if (physics.find(PhysicType::DRAG) != physics.end())
 	{
-		physics[PhysicType::DRAG]->SetVelocity({-v.x,(-v.y)*0.1f});
-		physics[PhysicType::DRAG]->SetAcceleration(0.1);
+		physics[PhysicType::DRAG]->SetVelocity({-v.x,0});
+		physics[PhysicType::DRAG]->SetAcceleration(0.3);
+		if (abs(v.x) < 0.4) v.x = 0.0f;
+		
 	//	std::cout << v.x << " " << v.y << " " << physics[PhysicType::DRAG]->GetAcceleration() << std::endl;
 	}
 	if (physics.find(PhysicType::REACT) != physics.end())

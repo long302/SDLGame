@@ -19,6 +19,12 @@ bool TextureManager::AddTexture(EntityType e_type, TextureType t_type, SDL_Rende
 	textures[e_type][t_type].SetRowCol(row, col);
 	return true;
 }
+bool TextureManager::AddTexture(EntityType e_type, TextureType t_type, SDL_Renderer* renderer, const std::string& path, int row, int col)
+{
+	textures[e_type][t_type].Load(renderer, path.c_str());
+	textures[e_type][t_type].SetRowCol(row, col);
+	return true;
+}
 
 TextureManager* TextureManager::DestroyTexture(EntityType e_type)
 {

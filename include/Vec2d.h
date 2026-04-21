@@ -11,7 +11,8 @@ enum class EntityType
 	PLAYER,
 	NORMAL_ENERMY,
 	BULLET,
-	GROUND
+	GROUND,
+	BACK_GROUND
 };
 	constexpr std::string_view GetStringOf(EntityType type)noexcept
 	{
@@ -21,7 +22,8 @@ enum class EntityType
 		case EntityType::PLAYER: return "EntityType::PLAYER";
 		case EntityType::NORMAL_ENERMY:  return "EntityType::NORMAL_ENEMY";
 		case EntityType::BULLET: return "EntityType::BULLET";
-		case EntityType::GROUND: return "EntityType::GROUND";
+		case EntityType::GROUND: return "EntityType::GROUND";	
+		case EntityType::BACK_GROUND: return "EntityType::BACK_GROUND";
 		default: return "Unknown";
 		}
 	}

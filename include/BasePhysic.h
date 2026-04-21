@@ -59,7 +59,7 @@ public:
 	~Gravity() {};
 	PhysicType GetType() override { return type; }
 
-	void Update(const Mess& m) override { f = vel * m.GetVal() * a; vel.Normalize(); }
+	void Update(const Mess& m) override {  vel.Normalize();f = vel * m.GetVal() * a;}
 };
 
 class Drag : public BasePhysic
@@ -70,7 +70,7 @@ public:
 	Drag() { }
 	~Drag() {};
 	PhysicType GetType() override { return type; }
-	 void Update(const Mess& m) override{ f = vel * m.GetVal() * a; vel.Normalize();}
+	 void Update(const Mess& m) override{ vel.Normalize();f = vel * m.GetVal() * a; }
 };
 class Movement:public BasePhysic
 {
@@ -83,16 +83,16 @@ public:
 	PhysicType GetType() override { return type; }
 	Movement* SetSpeed(float s) { speed = s; return this; }
 	float GetSpeed() const { return speed; }
-	void Update(const Mess& m) override { f = vel * m.GetVal() * a; vel.Normalize();}
+	void Update(const Mess& m) override { vel.Normalize();f = vel * m.GetVal() * a; }
 };
 
 class Reaction :public BasePhysic
 {
 public:
 	static constexpr PhysicType type = PhysicType::REACT;
-	Reaction() {}
+	Reaction() { vel = { 0.0,-1.0 }; a = 0.0f; }
 	~Reaction() {}
 	PhysicType GetType() override { return type; }
-	void Update(const Mess& m) override { f = vel * m.GetVal() * a; vel.Normalize(); }
+	void Update(const Mess& m) override { vel.Normalize();f = vel * m.GetVal() * a; }
 };
 

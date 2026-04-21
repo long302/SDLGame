@@ -2,4 +2,5 @@
 
 void Transformer::Update()
 {
+	old_pos = pos;
 }

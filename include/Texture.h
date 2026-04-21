@@ -55,7 +55,8 @@ public:
 		return instance;
 	}
 	bool AddTexture(EntityType e_type,TextureType t_type,SDL_Renderer* renderer, const char* path, int row, int col);
-	Texture& GetTexture(EntityType e_type, TextureType tex_type)  
+	bool AddTexture(EntityType e_type, TextureType t_type, SDL_Renderer* renderer, const std::string& path, int row, int col);
+	Texture& GetTexture(EntityType e_type, TextureType tex_type)
 	{
 		if (textures.find(e_type) == textures.end())
 		{

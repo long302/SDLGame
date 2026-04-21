@@ -15,15 +15,19 @@ struct Rectangle
 class HitBox
 {
 	Rectangle rect;
+	Rectangle old_rect;
+	
 public:
 
 	HitBox* SetRect(float top,float left,float w, float h) { this->rect = {left,top,w,h}; return this; }
 	const Rectangle& GetRect() const { return rect; }
+	const Rectangle& GetOldRect() const { return old_rect; }
+	HitBox* SetOldRect() { old_rect = rect; return this; }
 
 	bool CollideDetect(const HitBox& hb)
 	{
-		if (abs(rect.GetMidPos().x - hb.GetRect().GetMidPos().x) < hb.GetRect().w / 2 + rect.w / 2
-			&& abs(rect.GetMidPos().y - hb.GetRect().GetMidPos().y) < hb.GetRect().h / 2 + rect.h / 2)
+		if (abs(rect.GetMidPos().x - hb.GetRect().GetMidPos().x) <= hb.GetRect().w / 2.0f + rect.w / 2.0f
+			&& abs(rect.GetMidPos().y - hb.GetRect().GetMidPos().y) <= hb.GetRect().h / 2.0f + rect.h / 2.0f)
 			return true;
 		else return false;
 	}
@@ -46,5 +50,6 @@ public:
 	Collider() {};
 	~Collider() {};
 	HitBox& GetHitBox() { return hb; }
+	void SetOldRect() { hb.SetOldRect(); }
 	void Update() override;
 };

@@ -1,50 +1,29 @@
 #include"MapMethods.h"
 #include<thread>
-#include"SDL3_mixer/SDL_mixer.h"
 #include"SDL3_ttf/SDL_ttf.h"
 #include"DataAssets.h"
-TimeCalculate timer;
-
-int main()
+#include<conio.h>
+//Create -> Save; Load-> PLayGame               
+bool InitSDL()
 {
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_Init(SDL_INIT_AUDIO);
 	MIX_Init();
 	TTF_Init();
+	return true;
+}
+MIX_Mixer* CreateSDLMixer()
+{
 	SDL_AudioSpec spec{};
 	spec.freq = 44100;
 	spec.format = SDL_AUDIO_S32;
 	spec.channels = 2;
-	MIX_Mixer* mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
-	LoadData::AllAudio(mixer);
-	SDL_Window* window = SDL_CreateWindow("InfinityBattle", WIDTH, HEIGHT, SDL_WINDOW_RESIZABLE);
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
-	LoadData::AllTexture(renderer);
-	float t = 100;
-	for (t = 0;t < 1;t++)
-	{
-		GameSystem::Spawn::Player({ 50.0f + t,50.0f + t }, renderer);
-	}
-	for (t = 0; t < 1; t++)
-	{
-		GameSystem::Spawn::NormalEnermy({ 50.0f + t,50.0f + t }, renderer);
-	}
-	for (t = 0; t < 10; t++)
-	{
-		GameSystem::Spawn::Ground({ t * 300.0f,500.0f }, renderer);
-	}
-	for (t = 0; t < 1; t++)
-	{
-		GameSystem::Spawn::Ground({ t * 400.0f,250.0f }, renderer);
-	}
-	int choosen{};
-	std::cin >> choosen;
-	if (choosen==1)
-	{
-		Map::Create(renderer);
-	}
-	bool end{false};
-	Map::Load();
+	return MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
+}
+void PlayGame(SDL_Renderer* renderer)
+{
+	TimeCalculate timer;
+	bool end{ false };
 	while (!end)
 	{
 		timer.SetPoint1();
@@ -53,7 +32,7 @@ int main()
 			if (event.type == SDL_EVENT_QUIT)
 			{
 				end = true;
-				return 0;
+				return;
 			}
 			else
 			{
@@ -69,13 +48,14 @@ int main()
 					{
 						scale -= 0.1;
 					}
-					if (scale < 0.1) scale = 0.1;
+					if (scale < 0.2) scale = 0.2;
+					if (scale > 2.0) scale = 2.0;
 					g_pos = old_pos - ((mouse.GetScreenPos() / scale));
 				}
 			}
 		}
 
-		SDL_RenderClear(renderer); 
+		SDL_RenderClear(renderer);
 		//Update here:
 		GameSystem::Control::Update();
 		GameSystem::HandleControl::Update();
@@ -90,14 +70,27 @@ int main()
 		timer.SetPoint2();
 		float time = timer.GetDurationMs();
 		float fps = 60.0;
-		if (time <1000.0/fps)
+		if (time < 1000.0 / fps)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds((long long)(1000.0 / fps - time)));
 		}
 		timer.SetPoint2();
+		//std::cout << mouse.GetScreenPos().x << " " << mouse.GetScreenPos().y << std::endl;
 		//std::cout << timer.GetDurationSec()<<"\n";
 	}
+}
+int main()
+{
+	if (!InitSDL()) return 0;
+	MIX_Mixer* mixer = CreateSDLMixer();
+	LoadData::AllAudio(mixer);
 
+	SDL_Window* window = SDL_CreateWindow("InfinityBattle", WIDTH, HEIGHT, SDL_WINDOW_RESIZABLE);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
+	LoadData::AllTexture(renderer);
+		Map::Load("Map/MapName", renderer);
+		GameSystem::Spawn::BackGround({ -3 * WIDTH, -2 * HEIGHT }, renderer);
+		PlayGame(renderer);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	return 0;

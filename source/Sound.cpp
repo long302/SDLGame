@@ -33,3 +33,11 @@ bool AudioManager::AddAudio(EntityType e_type, AudioType au_type, const char* pa
 	audios[e_type][au_type].Load(mixer, path);
 	return true;
 }
+bool AudioManager::AddAudio(EntityType e_type, AudioType au_type, const std::string& path)
+{
+	if (!mixer) std::cout << "Mixer is null\n";
+
+	audios[e_type][au_type].Load(mixer, path.c_str());
+	return true;
+}
+

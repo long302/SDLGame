@@ -28,6 +28,7 @@ public:
 	~AudioManager() {};
 	AudioManager* SetMixer(MIX_Mixer* mixer) { this->mixer = mixer; return this; }
 	bool AddAudio(EntityType e_type, AudioType au_type, const char* path);
+	bool AddAudio(EntityType e_type, AudioType au_type, const std::string& path);
 	Audio& GetAudio(EntityType e_type, AudioType au_type) { return audios[e_type][au_type]; };
 	AudioManager* PlayAudio(EntityType e_type, AudioType au_type) 
 	{

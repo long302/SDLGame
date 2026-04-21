@@ -11,6 +11,7 @@ private:
 	Vec2d<float> v{ 0.0,0.0 };
 	PhysicMap physics;
 	Mess weight;
+	Vec2d<float> max_f{1e9,1e9};
 	
 public:
 	static constexpr ComponentType type = ComponentType::PHYSIC;
@@ -19,6 +20,7 @@ public:
 
 	Physics* SetForce(const Vec2d<float>& f) { this->f = f; return this; }
 	Physics* SetWeight(float m) { weight.SetVal(m); return this; }
+	Physics* SetMaxF(const Vec2d<float>& f) { this->max_f = f; return this; }
 	Physics* IncreaseForce(const Vec2d<float>& f) { this->f+=f; return this; }
 	const Mess& GetWeight() const { return weight; }
 	const Vec2d<float>& GetForce() const { return f; }
