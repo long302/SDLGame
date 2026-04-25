@@ -2,9 +2,11 @@
 #pragma once
 #define WIDTH 1500
 #define HEIGHT 750
+#define M_PI 3.14159265358979323846
 #include<math.h>
 #include<cmath>
 #include<string_view>
+
 enum class EntityType
 {
 	NONE,
@@ -12,7 +14,9 @@ enum class EntityType
 	NORMAL_ENERMY,
 	BULLET,
 	GROUND,
-	BACK_GROUND
+	BACK_GROUND,
+	DEAD_EFFECT,
+	EQUIPMENT
 };
 	constexpr std::string_view GetStringOf(EntityType type)noexcept
 	{
@@ -24,6 +28,8 @@ enum class EntityType
 		case EntityType::BULLET: return "EntityType::BULLET";
 		case EntityType::GROUND: return "EntityType::GROUND";	
 		case EntityType::BACK_GROUND: return "EntityType::BACK_GROUND";
+		case EntityType::DEAD_EFFECT: return "EntityType::DEAD_EFFECT";
+		case EntityType::EQUIPMENT: return "EntityType::EQUIPMENT";
 		default: return "Unknown";
 		}
 	}
@@ -36,7 +42,9 @@ enum class EntityState
 	FALL,
 	STUN,
 	ACTIVE_SKILL_1,
-	DEAD
+	DEAD,
+	EQUIPED,
+	LOOTED
 };
 template<typename N>
 class Vec2d
@@ -121,6 +129,12 @@ public:
 		return *this;
 	}
 };
+static double GetAngle(const Vec2d<float>& v)
+{
+	double angle = (double)atan2(v.y, v.x) * 180.0 / M_PI;
+	if (angle < 0) angle += 360.0;
+	return angle;
+}
 extern Vec2d<float> size_screen;
 extern Vec2d<float> g_pos;
 extern float scale;

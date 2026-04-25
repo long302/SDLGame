@@ -15,6 +15,7 @@ public:
 	Transformer(const Vec2d<float>& p){ pos=p; }
 	~Transformer() = default;
 
+	ComponentType GetType() override { return type; }
 	const Vec2d<float>& GetPos() const { return pos; }
 	const Vec2d<float>& GetOldPos() const { return old_pos; }
 	bool GetOnGround() const { return on_ground; }
@@ -29,25 +30,27 @@ public:
 
 	void Update() override;
 };
-class BulletTransformer : public Component
+class TransformerWithAngle : public Component
 {
 private:
 	Vec2d<float> pos{};
+	double angle{ 0.0f };
 public:
 	constexpr static ComponentType type = ComponentType::TRANSFORM;
 
-	BulletTransformer() = default;
-	BulletTransformer(float x, float y) { pos.SetX(x).SetY(y); }
-	BulletTransformer(const Vec2d<float>& p) { pos = p; }
-	~BulletTransformer() = default;
+	TransformerWithAngle() = default;
+	~TransformerWithAngle() = default;
 
+	TransformerWithAngle* SetPos(float x, float y) { pos.SetX(x).SetY(y); return this; }
+	TransformerWithAngle* SetPos(const Vec2d<float>& p) { pos = p; return this; }
+	TransformerWithAngle* SetAngle(double a) { angle = a; return this; }
+
+	ComponentType GetType() override { return type; }
 	const Vec2d<float>& GetPos() { return pos; }
+	double GetAngle() const { return angle; }
 
-	BulletTransformer* SetPos(float x, float y) { pos.SetX(x).SetY(y); return this; }
-	BulletTransformer* SetPos(const Vec2d<float>& p) { pos = p; return this; }
-
-	BulletTransformer* Increase(const Vec2d<float>& vec) { pos += vec; return this; }
-	BulletTransformer* Decrease(const Vec2d<float>& vec) { pos -= vec; return this; }
+	TransformerWithAngle* Increase(const Vec2d<float>& vec) { pos += vec; return this; }
+	TransformerWithAngle* Decrease(const Vec2d<float>& vec) { pos -= vec; return this; }
 
 	void Update() override {};
 };

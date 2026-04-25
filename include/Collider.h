@@ -50,6 +50,7 @@ public:
 	Collider() {};
 	~Collider() {};
 	HitBox& GetHitBox() { return hb; }
+	ComponentType GetType() override { return type; }
 	void SetOldRect() { hb.SetOldRect(); }
 	void Update() override;
 };

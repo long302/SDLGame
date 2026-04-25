@@ -3,7 +3,7 @@
 #include"Texture.h"
 class Renderer: public Component
 {
-private:
+protected:
 	SDL_Renderer* renderer{ nullptr };
 	Texture* texture{ nullptr };
 	SDL_FRect src{NULL};
@@ -31,5 +31,31 @@ public:
 	Renderer* SetDstRect(const SDL_FRect& rect) { dst = rect; return this; }
 	Renderer* SetDelay(int delay) { this->delay = delay; return this; }
 	SDL_Renderer* GetRenderer() { return renderer; }
+	ComponentType GetType() override { return type; }
+	void UpdateAttrib();
+	virtual void Render();
+	bool CheckEndTexture() 
+	{
+		if (count_row == texture->GetRow() - 1 && count_col == texture->GetCol() - 1) return true;
+		else return false;
+	}
+	void Update() override;
+
+};
+class RendererWithAngle : public Renderer
+{
+protected:
+	double angle{ 0.0f };
+	SDL_FPoint center{ NULL };
+public:
+	RendererWithAngle() = default;
+	~RendererWithAngle() = default;
+
+	RendererWithAngle* SetAngle(double a) { angle = a; return this; }
+	double GetAngle() const { return angle; }
+
+	RendererWithAngle* SetCenter(const SDL_FPoint& c) { center = c; return this; }
+	SDL_FPoint GetCenter() const { return center; }
+	void Render() override;
 	void Update() override;
 };

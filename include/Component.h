@@ -12,7 +12,8 @@ enum class ComponentType
 	LOGIC,
 	IMAGE,
 	RENDER,
-	PHYSIC
+	PHYSIC,
+	EQUIP
 };
 constexpr std::string_view GetStringOf(ComponentType type)
 {
@@ -25,6 +26,7 @@ constexpr std::string_view GetStringOf(ComponentType type)
 	case ComponentType::IMAGE: return "ComponentType::IMAGE";
 	case ComponentType::RENDER: return "ComponentType::RENDER";
 	case ComponentType::PHYSIC: return "ComponentType::PHYSIC";
+	case ComponentType::EQUIP: return "ComponentType::EQUIP";
 	default: return "Unknown";
 	}
 }
@@ -34,7 +36,7 @@ private:
 public:
 	Component() = default;
 	virtual ~Component() {};
-
+	virtual ComponentType GetType() = 0;
 	virtual void Update() = 0;
 };
 class TestComponent: public Component

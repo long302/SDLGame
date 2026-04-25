@@ -9,8 +9,10 @@ void GameSystem::Spawn::Player(const Vec2d<float>& pos,SDL_Renderer* renderer)
 		 ->Add<Renderer>()
 		 ->Add<Physics>()
 		 ->Add<Collider>()
+		 ->Add<Equipments>()
 		 ->Add<Imager>();
 	 //transform
+
 	 auto t = player->Get<Transformer>();
 	 t->SetPos(pos);
 	 //physic
@@ -21,10 +23,11 @@ void GameSystem::Spawn::Player(const Vec2d<float>& pos,SDL_Renderer* renderer)
 		 ->Add<Reaction>();
 	 player_p->SetMaxF({10.0,20.0});
 	 //collide
-	 auto col = player->Get<Collider>()->GetHitBox().SetRect(t->GetPos().y, t->GetPos().x, 70, 100);
+	 player->Get<Collider>()->GetHitBox().SetRect(t->GetPos().y, t->GetPos().x, 100, 100);
 	 //image
 	 TextureManager& tm = TextureManager::GetInstance();
-	//render
+	 player->Get<Imager>()->SetTexture(&tm.GetTexture(player->GetType(), TextureType::NONE));
+	//render 
 	 auto r = player->Get<Renderer>();
 	 r->SetRenderer(renderer);
 }
@@ -73,8 +76,8 @@ void GameSystem::Spawn::Bullet(const Vec2d<float>& pos, SDL_Renderer* renderer, 
 	auto p = bullet->Get<Physics>();
 	auto c = bullet->Get<BulletController>();
 	p->IncreaseForce(c->GetVelocity() * 30);
-	//p->Add<Gravity>();
-	//p->Get<Gravity>()->SetAcceleration(0.5);
+	p->Add<Gravity>();
+	p->Get<Gravity>()->SetAcceleration(0.3);
 	TextureManager& tm = TextureManager::GetInstance();
 	bullet->Get<Imager>()->SetTexture(&tm.GetTexture(bullet->GetType(), TextureType::NONE));
 }
@@ -110,11 +113,44 @@ void GameSystem::Spawn::BackGround(const Vec2d<float>& pos, SDL_Renderer* render
 	TextureManager& tm = TextureManager::GetInstance();
 	img->SetTexture(&tm.GetTexture(ground->GetType(), TextureType::NONE));
 	auto col = ground->Get<Collider>();
-	col->GetHitBox().SetRect(0, 0, WIDTH*7.5f, HEIGHT*5);
+	col->GetHitBox().SetRect(0, 0, WIDTH*12.0f, HEIGHT*8.0f);
 	auto r = ground->Get<Renderer>();
 	r->SetRenderer(renderer);
 }
 
+void GameSystem::Spawn::DeadEffect(EntityType type, const Vec2d<float>& pos, SDL_Renderer* renderer)
+{
+	EntityManager& em = EntityManager::GetInstance();
+	auto& de=em.AddEntity(EntityType::DEAD_EFFECT);
+	de->Add<Transformer>()
+		->Add<Collider>()
+		->Add<Imager>()
+		->Add<Renderer>();
+
+	auto de_t = de->Get<Transformer>();
+	de_t->SetPos(pos);
+	auto de_col = de->Get<Collider>();
+	de_col->GetHitBox().SetRect(de_t->GetPos().x, de_t->GetPos().y, 100, 100);
+	TextureManager& tm = TextureManager::GetInstance();
+
+	de->Get<Imager>()->SetTexture(&tm.GetTexture(type, TextureType::DEAD));
+	de->Get<Renderer>()->SetRenderer(renderer)->SetDelay(3);
+}
+void GameSystem::Spawn::SpawnGun(const Vec2d<float>& pos, SDL_Renderer* renderer)
+{
+	EntityManager& em = EntityManager::GetInstance();
+	auto& equipment = em.AddEntity(EntityType::EQUIPMENT);
+	equipment->SetState(EntityState::NONE);
+	equipment->Add<TransformerWithAngle>()
+		->Add<Collider>()
+		->Add<Imager>()
+		->Add<RendererWithAngle>();
+	equipment->Get<TransformerWithAngle>()->SetPos(pos)->SetAngle(0.0f);
+	equipment->Get<Collider>()->GetHitBox().SetRect(pos.x, pos.y , 100.0f, 50.0f);
+	TextureManager& tm=TextureManager::GetInstance();
+	equipment->Get<Imager>()->SetTexture(&tm.GetTexture(EntityType::EQUIPMENT, TextureType::NONE));
+	equipment->Get<RendererWithAngle>()->SetRenderer(renderer)->SetDelay(3);
+}
 void GameSystem::Recall::Update()
 {
 	EntityManager& em = EntityManager::GetInstance();
@@ -126,10 +162,20 @@ void GameSystem::Recall::Update()
 			auto b_t = bullets->Get<Transformer>();
 			float distance = (player_t->GetPos() - b_t->GetPos()).Length();
 			if (distance > 20000.0)
-			{
+			{			
 				bullets->SetState(EntityState::DEAD);
 			}
 		}
+	}
+	for (auto& de : em.GetEntity(EntityType::DEAD_EFFECT))
+	{
+		if (de->Get<Renderer>()->CheckEndTexture()) de->SetState(EntityState::DEAD);
+	}
+	for (auto& bullet : em.GetEntity(EntityType::BULLET))
+	{
+		if(bullet->GetState() == EntityState::DEAD)
+			GameSystem::Spawn::DeadEffect(EntityType::BULLET, bullet->Get<Transformer>()->GetPos() - Vec2d<float>{50.0f, 50.0f}, bullet->Get<Renderer>()->GetRenderer());
+		
 	}
 	for (auto& vec_e : em.GetAllEntity())
 	{
@@ -137,11 +183,13 @@ void GameSystem::Recall::Update()
 		{
 			if (vec_e.second[i]->GetState() == EntityState::DEAD)
 			{
+				
 				vec_e.second.erase(vec_e.second.begin() + i);
 				i--;
 			}		
 		}
 	}
+	
 }
 void GameSystem::Control::Update()
 {
@@ -165,8 +213,8 @@ void GameSystem::HandleControl::Update()
 	EntityManager& em = EntityManager::GetInstance();
 	for (auto& e : em.GetEntity(EntityType::PLAYER))
 	{
-		auto p = e->Get<Physics>();
-		auto c = e->Get<Controller>();
+		auto& p = e->Get<Physics>();
+		auto& c = e->Get<Controller>();
 		for (ControlState cs : c->GetState())
 		{
 			switch (cs)
@@ -199,6 +247,7 @@ void GameSystem::HandleControl::Update()
 					vel);
 				am.PlayAudio(EntityType::PLAYER, AudioType::SHOOT);
 				break;
+
 			}
 		}
 	}
@@ -288,7 +337,15 @@ void GameSystem::Transform::Update()
 		auto p = e->Get<Physics>();
 		t->Increase((p->GetVelocity()));
 		t->Update();
-		
+		auto& e_equip = e->Get<Equipments>();
+		if (e_equip->GetCurrentId() != -1)
+		{
+			auto& equipment = em.GetEntity(EntityType::EQUIPMENT).at(e_equip->GetCurrentId());
+			const Vec2d<float>& mid_pos = e->Get<Collider>()->GetHitBox().GetRect().GetMidPos();
+			equipment->Get<TransformerWithAngle>()->SetPos({mid_pos.x-25.0f,mid_pos.y-25.0f});
+			equipment->Get<TransformerWithAngle>()->SetAngle(GetAngle(mouse.GetRealPos() - mid_pos));
+		}
+
 	}
 	for (auto& e : em.GetEntity(EntityType::NORMAL_ENERMY))
 	{
@@ -304,6 +361,7 @@ void GameSystem::Transform::Update()
 		t->Increase(p->GetVelocity());
 		t->Update();
 	}
+	
 	
 }
 void GameSystem::Collide::Update()
@@ -443,6 +501,7 @@ void GameSystem::Collide::Update()
 		}
 
 	}
+
 	for (auto& player : em.GetEntity(EntityType::NORMAL_ENERMY))
 	{
 		auto player_col = player->Get<Collider>();
@@ -474,7 +533,6 @@ void GameSystem::Collide::Update()
 					player_p->SetForce({ player_p->GetForce().x,0.0f });
 				}
 			}
-
 		}
 		player_t->SetOnGround(temp);
 		for (auto& ground : em.GetEntity(EntityType::GROUND))
@@ -509,6 +567,30 @@ void GameSystem::Collide::Update()
 
 		}
 
+	}
+	//player vs equipments
+	for (auto& player : em.GetEntity(EntityType::PLAYER))
+	{
+		auto player_col = player->Get<Collider>();
+		auto player_t = player->Get<Transformer>();
+		player_col->GetHitBox().SetRect(player_t->GetPos().y, player_t->GetPos().x, player_col->GetHitBox().GetRect().w, player_col->GetHitBox().GetRect().h);
+		auto& vec_e = em.GetEntity(EntityType::EQUIPMENT);
+		for (int i=0;i<vec_e.size();i++ )
+		{
+			auto equipment_col = vec_e[i]->Get<Collider>();
+			auto equipment_t = vec_e[i]->Get<TransformerWithAngle>();
+			equipment_col->GetHitBox().SetRect(equipment_t->GetPos().y, equipment_t->GetPos().x, equipment_col->GetHitBox().GetRect().w, equipment_col->GetHitBox().GetRect().h);
+			if (vec_e[i]->GetState() == EntityState::NONE)
+			{
+				if (equipment_col->GetHitBox().CollideDetect(player_col->GetHitBox()))
+				{
+					player->Get<Equipments>()->Loot(i)->SetCurrentId(i);
+					vec_e[i]->SetState(EntityState::EQUIPED);
+				}
+
+			}
+		}
+		
 	}
 }
 void GameSystem::Assets::Update()
@@ -551,7 +633,7 @@ void GameSystem::Render::Update()
 		auto pos = e->Get<Transformer>()->GetPos();
 		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
 		auto img = e->Get<Imager>();
-		r->SetDstRect({ (pos.x - g_pos.x) * scale,(pos.y - g_pos.y) * scale,rect.w * scale,rect.h * scale })
+		r->SetDstRect({ (pos.x - g_pos.x/15.0f) * scale,(pos.y - g_pos.y/15.0f) * scale,rect.w * scale,rect.h * scale })
 			->SetDelay(3)
 			->SetTexture(img->GetTexture())
 			->Update();
@@ -578,7 +660,31 @@ void GameSystem::Render::Update()
 			->SetTexture(img->GetTexture())
 			->Update();
 	}
+	for (auto& e : em.GetEntity(EntityType::EQUIPMENT))
+	{
+		auto r = e->Get<RendererWithAngle>();
+		auto pos = e->Get<TransformerWithAngle>()->GetPos();
+		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
+		auto img = e->Get<Imager>();
+		r->SetDstRect({ (pos.x - g_pos.x) * scale,(pos.y - g_pos.y) * scale,rect.w * scale,rect.h * scale })
+			->SetDelay(3)
+			->SetTexture(img->GetTexture());
+		r->SetAngle(e->Get<TransformerWithAngle>()->GetAngle())
+			->SetCenter({25.0f*scale,25.0f*scale})
+			->Update();
+	}
 	for (auto& e : em.GetEntity(EntityType::BULLET))
+	{
+		auto r = e->Get<Renderer>();
+		auto pos = e->Get<Transformer>()->GetPos();
+		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
+		auto img = e->Get<Imager>();
+		r->SetDstRect({ (pos.x - g_pos.x) * scale,(pos.y - g_pos.y) * scale,rect.w * scale,rect.h * scale })
+			->SetDelay(3)
+			->SetTexture(img->GetTexture())
+			->Update();
+	}
+	for (auto& e : em.GetEntity(EntityType::DEAD_EFFECT))
 	{
 		auto r = e->Get<Renderer>();
 		auto pos = e->Get<Transformer>()->GetPos();
@@ -599,7 +705,14 @@ void GameSystem::Render::Update()
 			->SetDelay(3)
 			->SetTexture(img->GetTexture())
 			->Update();
-	}
-	
+	}	
 }
 
+void GameSystem::Equip::Update()
+{
+	EntityManager& em = EntityManager::GetInstance();
+	for (auto& e : em.GetEntity(EntityType::PLAYER))
+	{
+		e->Get<Equipments>()->Update();
+	}
+}

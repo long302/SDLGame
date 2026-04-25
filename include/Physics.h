@@ -25,6 +25,7 @@ public:
 	const Mess& GetWeight() const { return weight; }
 	const Vec2d<float>& GetForce() const { return f; }
 	const Vec2d<float>& GetVelocity() const { return v; }
+	ComponentType GetType() override { return type; }
 	template<typename N>
 	Physics* Add()
 	{

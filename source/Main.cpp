@@ -88,9 +88,11 @@ int main()
 	SDL_Window* window = SDL_CreateWindow("InfinityBattle", WIDTH, HEIGHT, SDL_WINDOW_RESIZABLE);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
 	LoadData::AllTexture(renderer);
-		Map::Load("Map/MapName", renderer);
-		GameSystem::Spawn::BackGround({ -3 * WIDTH, -2 * HEIGHT }, renderer);
-		PlayGame(renderer);
+	Map::Load("Map/MapName", renderer);
+	GameSystem::Spawn::BackGround({ -2 * WIDTH,-1.0f*HEIGHT}, renderer);
+	GameSystem::Spawn::SpawnGun( {500.0,1000.0f},renderer );
+	GameSystem::Spawn::SpawnGun( {500.0,300.0f},renderer );
+	PlayGame(renderer);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	return 0;

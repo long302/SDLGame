@@ -13,5 +13,6 @@ public:
 	AutoControl() {};
 	~AutoControl() {};
 	std::vector<ControlState>& GetState() { return state; }
+	ComponentType GetType() override { return type; }
 	void Update() override;
 };

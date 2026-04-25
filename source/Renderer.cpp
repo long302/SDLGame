@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-void Renderer::Update()
+void Renderer::UpdateAttrib()
 {
 	if (renderer == nullptr || texture == nullptr)
 	{
@@ -27,6 +27,26 @@ void Renderer::Update()
 	int w, h;
 	w = texture->GetTexture()->w / texture->GetCol();
 	h = texture->GetTexture()->h / texture->GetRow();
-	src = { (float)(count_col ) * w,(float)(count_row )* h, (float)w, (float)h };
-	SDL_RenderTexture( renderer, texture->GetTexture(),&src,&dst);
+	src = { (float)(count_col)*w,(float)(count_row)*h, (float)w, (float)h };
+}
+
+void Renderer::Render()
+{
+	SDL_RenderTexture(renderer, texture->GetTexture(), &src, &dst);
+}
+
+void Renderer::Update()
+{
+	UpdateAttrib();
+	Render();	
+}
+
+void RendererWithAngle::Update()
+{
+	UpdateAttrib();
+	Render();
+}
+void RendererWithAngle::Render()
+{
+	SDL_RenderTextureRotated(renderer, texture->GetTexture(), &src, &dst, angle, &center, SDL_FLIP_NONE);
 }

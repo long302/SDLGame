@@ -9,6 +9,7 @@ enum class TextureType
 	JUMP,
 	FALL,
 	USING_SKILL_1,
+	DEAD
 
 };
 constexpr std::string_view GetStringOf(TextureType type)noexcept
@@ -20,6 +21,7 @@ constexpr std::string_view GetStringOf(TextureType type)noexcept
 	case TextureType::RUN_RIGHT:  return "TextureType::RUN_RIGHT";
 	case TextureType::JUMP: return "TextureType::JUMP";
 	case TextureType::FALL: return "TextureType::FALL";
+	case TextureType::DEAD: return "TextureType::DEAD";
 	default: return "Unknown";
 	}	
 }
@@ -82,6 +84,7 @@ public:
 	Imager* SetTextureType(TextureType t) { tex_type = t; return this; }
 	Imager* SetTexture(Texture* tex) { texture = tex; return this; }
 	Texture* GetTexture() { return texture;}
+	ComponentType GetType() override { return type; }
 	TextureType GetTextureType() { return tex_type; }
 
 	void Update() override;

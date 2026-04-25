@@ -12,6 +12,7 @@
 #include"AutoControl.h"
 #include"Sound.h"
 #include"BulletController.h"
+#include"Equipments.h"
 #define ComponentPointer std::shared_ptr<Component>
 #define ComponentMap  std::map<ComponentType, ComponentPointer> 
 
@@ -53,6 +54,7 @@ public:
 	Entity* SetState(EntityState es) { state = es; return this; }
 	EntityType GetType() { return type; }
 	EntityState GetState() { return state; }
+
 	template<typename N>
 	Entity* Add()
 	{

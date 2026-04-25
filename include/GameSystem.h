@@ -10,6 +10,8 @@ namespace GameSystem
 		void Bullet(const Vec2d<float>& pos, SDL_Renderer* renderer, const Vec2d<float>& veclocity);
 		void Ground( const Vec2d<float>& pos, SDL_Renderer* renderer);
 		void BackGround(const Vec2d<float>& pos, SDL_Renderer* renderer);
+		void DeadEffect(EntityType type, const Vec2d<float>& pos, SDL_Renderer* renderer);
+		void SpawnGun(const Vec2d<float>& pos, SDL_Renderer* renderer);
 	}
 	namespace Recall
 	{
@@ -32,6 +34,10 @@ namespace GameSystem
 		void Update();
 	}
 	namespace Collide
+	{
+		void Update();
+	}
+	namespace Equip
 	{
 		void Update();
 	}

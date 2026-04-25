@@ -12,7 +12,8 @@ enum class ControlState
 	FALL,
 	ATTACK,
 	USING_SK1,
-	USING_SK2
+	USING_SK2,
+	LOOT
 };
 class Controller : public Component
 {
@@ -25,6 +26,7 @@ public:
 	~Controller() = default;
 
 	 std::vector<ControlState>& GetState()  { return state; }
+	 ComponentType GetType() override { return type; }
 	void Update() override;
 
 };
