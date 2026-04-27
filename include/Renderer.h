@@ -46,7 +46,7 @@ class RendererWithAngle : public Renderer
 {
 protected:
 	double angle{ 0.0f };
-	SDL_FPoint center{ NULL };
+	Vec2d<float> center{};
 public:
 	RendererWithAngle() = default;
 	~RendererWithAngle() = default;
@@ -54,8 +54,8 @@ public:
 	RendererWithAngle* SetAngle(double a) { angle = a; return this; }
 	double GetAngle() const { return angle; }
 
-	RendererWithAngle* SetCenter(const SDL_FPoint& c) { center = c; return this; }
-	SDL_FPoint GetCenter() const { return center; }
+	RendererWithAngle* SetCenter(const Vec2d<float>& c) { center = c; return this; }
+	Vec2d<float> GetCenter() const { return center; }
 	void Render() override;
 	void Update() override;
 };

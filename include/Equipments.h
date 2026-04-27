@@ -17,6 +17,11 @@ public:
 
 	ComponentType GetType() override { return type; }
 	int GetCurrentId() const { return current_id; }
+	bool CanUse() 
+	{
+		if (current_id >= 0) return true;
+		else return false;
+	}
 	std::vector<int>& GetIds() { return ids; }
 	void Update() override;
 };

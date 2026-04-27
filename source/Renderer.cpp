@@ -48,5 +48,6 @@ void RendererWithAngle::Update()
 }
 void RendererWithAngle::Render()
 {
-	SDL_RenderTextureRotated(renderer, texture->GetTexture(), &src, &dst, angle, &center, SDL_FLIP_NONE);
+	SDL_FPoint sdl_center = { center.x, center.y };
+	SDL_RenderTextureRotated(renderer, texture->GetTexture(), &src, &dst, angle, &sdl_center, SDL_FLIP_NONE);
 }

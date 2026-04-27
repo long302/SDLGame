@@ -63,6 +63,7 @@ void PlayGame(SDL_Renderer* renderer)
 		GameSystem::Transform::Update();
 		GameSystem::Collide::Update();
 		GameSystem::Assets::Update();
+		GameSystem::Equip::Update();
 		GameSystem::Render::Update();
 		GameSystem::Recall::Update();
 		//
@@ -90,8 +91,11 @@ int main()
 	LoadData::AllTexture(renderer);
 	Map::Load("Map/MapName", renderer);
 	GameSystem::Spawn::BackGround({ -2 * WIDTH,-1.0f*HEIGHT}, renderer);
-	GameSystem::Spawn::SpawnGun( {500.0,1000.0f},renderer );
-	GameSystem::Spawn::SpawnGun( {500.0,300.0f},renderer );
+	void (*func)(const Vec2d<float>&, SDL_Renderer*) = GameSystem::Spawn::LaserGun;
+	func( {500.0,1000.0f},renderer );
+	func( {500.0,300.0f},renderer );
+	func( {300.0f,250.0f},renderer );
+	func( {500.0,900.0f},renderer );
 	PlayGame(renderer);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);

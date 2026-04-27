@@ -13,6 +13,7 @@
 #include"Sound.h"
 #include"BulletController.h"
 #include"Equipments.h"
+#include"EquipmentAttrib.h"
 #define ComponentPointer std::shared_ptr<Component>
 #define ComponentMap  std::map<ComponentType, ComponentPointer> 
 
