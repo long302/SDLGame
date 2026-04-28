@@ -94,8 +94,10 @@ int main()
 	void (*func)(const Vec2d<float>&, SDL_Renderer*) = GameSystem::Spawn::LaserGun;
 	func( {500.0,1000.0f},renderer );
 	func( {500.0,300.0f},renderer );
-	func( {300.0f,250.0f},renderer );
-	func( {500.0,900.0f},renderer );
+	func = GameSystem::Spawn::RocketGun;
+	func({ 300.0f,250.0f }, renderer);
+	func({ 500.0f,900.0f }, renderer);
+
 	PlayGame(renderer);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);

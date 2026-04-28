@@ -16,6 +16,12 @@ enum class EntityType
 	BACK_GROUND,
 	DEAD_EFFECT,
 	EQUIPMENT,
+	BULLET,
+
+	LASER_GUN,
+	ROCKET_GUN,
+	BOMB_GUN,
+
 	LASER_BULLET,
 	ROCKET_BULLET,
 	BOMB_BULLET
@@ -31,6 +37,12 @@ enum class EntityType
 		case EntityType::BACK_GROUND: return "EntityType::BACK_GROUND";
 		case EntityType::DEAD_EFFECT: return "EntityType::DEAD_EFFECT";
 		case EntityType::EQUIPMENT: return "EntityType::EQUIPMENT";
+		case EntityType::BULLET: return "EntityType::BULLET";
+
+		case EntityType::LASER_GUN: return "EntityType::LASER_GUN";
+		case EntityType::ROCKET_GUN: return "EntityType::ROCKET_GUN";
+		case EntityType::BOMB_GUN: return "EntityType::BOMB_GUN";
+
 		case EntityType::LASER_BULLET: return "EntityType::LASER_BULLET";
 		case EntityType::ROCKET_BULLET: return "EntityType::ROCKET_BULLET";
 		case EntityType::BOMB_BULLET: return "EntityType::BOMB_BULLET";

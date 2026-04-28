@@ -7,6 +7,7 @@ class Equipments : public Component
 private:
 	int current_id{ -1 };
 	std::vector<int> ids;
+	int count{ 0 };
 public:
 	static constexpr ComponentType type = ComponentType::EQUIP;
 	Equipments() {};
@@ -14,6 +15,7 @@ public:
 	
 	Equipments* SetCurrentId(int id) { current_id = id; return this; }
 	Equipments* Loot(int id) { ids.push_back(id); return this; }
+	Equipments* SwapWeapon() { current_id = ids[(count++) % ids.size()]; return this; }
 
 	ComponentType GetType() override { return type; }
 	int GetCurrentId() const { return current_id; }

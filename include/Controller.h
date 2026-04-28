@@ -13,7 +13,8 @@ enum class ControlState
 	ATTACK,
 	USING_SK1,
 	USING_SK2,
-	LOOT
+	LOOT,
+	SWAP_WEAPON
 };
 class Controller : public Component
 {

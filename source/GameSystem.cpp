@@ -56,31 +56,8 @@ void GameSystem::Spawn::NormalEnermy(const Vec2d<float>& pos, SDL_Renderer* rend
 	TextureManager& tm = TextureManager::GetInstance();
 	enermy->Get<Imager>()->SetTexture(&tm.GetTexture(enermy->GetType(), TextureType::NONE));
 }
-void GameSystem::Spawn::LaserBullet(const Vec2d<float>& mid_pos, SDL_Renderer* renderer, const Vec2d<float>& velocity)
-{
-	EntityManager& em = EntityManager::GetInstance();
-	auto bullet = em.AddEntity(EntityType::LASER_BULLET);
-	bullet->Add<Collider>()
-		->Add<Transformer>()
-		->Add<Renderer>()
-		->Add<Imager>()
-		->Add<Physics>()
-		->Add<BulletController>();
 
-	auto t = bullet->Get<Transformer>();
-	auto col = bullet->Get<Collider>()->GetHitBox().SetRect(0.0f, 0.0f, 25, 25);
-	t->SetPos(mid_pos - Vec2d<float>{col->GetRect().w / 2.0f, col->GetRect().h / 2.0f});
-	auto r = bullet->Get<Renderer>();
-	r->SetRenderer(renderer);
-	bullet->Get<BulletController>()->SetVelocity(velocity);
-	auto p = bullet->Get<Physics>();
-	auto c = bullet->Get<BulletController>();
-	p->IncreaseForce(c->GetVelocity() * 30);
-	//p->Add<Gravity>();
-	//p->Get<Gravity>()->SetAcceleration(0.3);
-	TextureManager& tm = TextureManager::GetInstance();
-	bullet->Get<Imager>()->SetTexture(&tm.GetTexture(bullet->GetType(), TextureType::NONE));
-}
+
 void GameSystem::Spawn::Ground(const Vec2d<float>& pos, SDL_Renderer* renderer)
 {
 	EntityManager& em = EntityManager::GetInstance();
@@ -118,7 +95,7 @@ void GameSystem::Spawn::BackGround(const Vec2d<float>& pos, SDL_Renderer* render
 	r->SetRenderer(renderer);
 }
 
-void GameSystem::Spawn::DeadEffect(EntityType type, const Vec2d<float>& pos, SDL_Renderer* renderer)
+void GameSystem::Spawn::DeadEffect(EntityType type, const Vec2d<float>& mid_pos, SDL_Renderer* renderer)
 {
 	EntityManager& em = EntityManager::GetInstance();
 	auto& de=em.AddEntity(EntityType::DEAD_EFFECT);
@@ -128,9 +105,10 @@ void GameSystem::Spawn::DeadEffect(EntityType type, const Vec2d<float>& pos, SDL
 		->Add<Renderer>();
 
 	auto de_t = de->Get<Transformer>();
-	de_t->SetPos(pos);
 	auto de_col = de->Get<Collider>();
 	de_col->GetHitBox().SetRect(de_t->GetPos().x, de_t->GetPos().y, 100, 100);
+	
+	de_t->SetPos(mid_pos-Vec2d<float>{de_col->GetHitBox().GetRect().w / 2.0f, de_col->GetHitBox().GetRect().h / 2.0f});
 	TextureManager& tm = TextureManager::GetInstance();
 
 	de->Get<Imager>()->SetTexture(&tm.GetTexture(type, TextureType::DEAD));
@@ -147,21 +125,99 @@ void GameSystem::Spawn::LaserGun(const Vec2d<float>& pos, SDL_Renderer* renderer
 		->Add<Imager>()
 		->Add<RendererWithAngle>();
 	equipment->Get<TransformerWithAngle>()->SetPos(pos)->SetAngle(0.0f);
-	equipment->Get<EquipmentAttrib>()->SetBulletType(EntityType::LASER_BULLET);
+	equipment->Get<EquipmentAttrib>()->SetEquipmentType(EntityType::LASER_GUN)->SetBulletType(EntityType::LASER_BULLET);
 	equipment->Get<Collider>()->GetHitBox().SetRect(pos.x, pos.y , 100.0f, 50.0f);
 	TextureManager& tm=TextureManager::GetInstance();
-	equipment->Get<Imager>()->SetTexture(&tm.GetTexture(EntityType::EQUIPMENT, TextureType::NONE));
+	equipment->Get<Imager>()->SetTexture(&tm.GetTexture(equipment->Get<EquipmentAttrib>()->GetEquipmentType(), TextureType::NONE));
 	equipment->Get<RendererWithAngle>()->SetRenderer(renderer)->SetDelay(3);
 }
+void GameSystem::Spawn::RocketGun(const Vec2d<float>& pos, SDL_Renderer* renderer)
+{
+	EntityManager& em = EntityManager::GetInstance();
+	auto& equipment = em.AddEntity(EntityType::EQUIPMENT);
+	equipment->SetState(EntityState::NONE);
+	equipment->Add<TransformerWithAngle>()
+		->Add<EquipmentAttrib>()
+		->Add<Collider>()
+		->Add<Imager>()
+		->Add<RendererWithAngle>();
+	equipment->Get<TransformerWithAngle>()->SetPos(pos)->SetAngle(0.0f);
+	equipment->Get<EquipmentAttrib>()->SetEquipmentType(EntityType::ROCKET_GUN)->SetBulletType(EntityType::ROCKET_BULLET);
+	equipment->Get<Collider>()->GetHitBox().SetRect(pos.x, pos.y, 100.0f, 50.0f);
+	TextureManager& tm = TextureManager::GetInstance();
+	equipment->Get<Imager>()->SetTexture(&tm.GetTexture(equipment->Get<EquipmentAttrib>()->GetEquipmentType(), TextureType::NONE));
+	equipment->Get<RendererWithAngle>()->SetRenderer(renderer)->SetDelay(3);
+}
+void GameSystem::Spawn::RocketBullet(const Vec2d<float>& mid_pos, SDL_Renderer* renderer, const Vec2d<float>& veclocity)
+{
+	EntityManager& em = EntityManager::GetInstance();
+	auto bullet = em.AddEntity(EntityType::BULLET);
+	bullet->Add<Collider>()
+		->Add<TransformerWithAngle>()
+		->Add<RendererWithAngle>()
+		->Add<Imager>()
+		->Add<Physics>()
+		->Add<BulletAttrib>()
+		->Add<BulletController>();
+
+	auto t = bullet->Get<TransformerWithAngle>();
+	t->SetAngle(GetAngle(veclocity));
+	auto hb = bullet->Get<Collider>()->GetHitBox().SetRect(0.0f, 0.0f, 100, 50);
+	t->SetPos(mid_pos - Vec2d<float>{hb->GetRect().w / 2.0f, hb->GetRect().h / 2.0f});
+	bullet->Get<Collider>()->GetHitBox().SetRect(t->GetPos().x, t->GetPos().y, hb->GetRect().w, hb->GetRect().h);
+	auto r = bullet->Get<RendererWithAngle>();
+	r->SetRenderer(renderer);
+	r->SetAngle(t->GetAngle());
+	r->SetCenter(Vec2d<float>{hb->GetRect().w / 2.0f, hb->GetRect().h / 2.0f}*scale);
+	bullet->Get<BulletController>()->SetVelocity(veclocity);
+	auto p = bullet->Get<Physics>();
+	auto c = bullet->Get<BulletController>();
+	p->IncreaseForce(c->GetVelocity() * 30);
+	bullet->Get<BulletAttrib>()->SetBulletType(EntityType::ROCKET_BULLET);
+	p->Add<Gravity>();
+	p->Get<Gravity>()->SetAcceleration(0.3);
+	TextureManager& tm = TextureManager::GetInstance();
+	bullet->Get<Imager>()->SetTexture(&tm.GetTexture(bullet->Get<BulletAttrib>()->GetBulletType(), TextureType::NONE));
+}
+void GameSystem::Spawn::LaserBullet(const Vec2d<float>& mid_pos, SDL_Renderer* renderer, const Vec2d<float>& velocity)
+{
+	EntityManager& em = EntityManager::GetInstance();
+	auto bullet = em.AddEntity(EntityType::BULLET);
+	bullet->Add<Collider>()
+		->Add<TransformerWithAngle>()
+		->Add<RendererWithAngle>()
+		->Add<Imager>()
+		->Add<Physics>()
+		->Add<BulletAttrib>()
+		->Add<BulletController>();
+
+	auto t = bullet->Get<TransformerWithAngle>();
+	auto hb = bullet->Get<Collider>()->GetHitBox().SetRect(0.0f, 0.0f, 25, 25);
+	t->SetPos(mid_pos - Vec2d<float>{hb->GetRect().w / 2.0f, hb->GetRect().h / 2.0f});
+	bullet->Get<Collider>()->GetHitBox().SetRect(t->GetPos().x, t->GetPos().y, hb->GetRect().w, hb->GetRect().h);
+	auto r = bullet->Get<RendererWithAngle>();
+	r->SetRenderer(renderer);
+	r->SetCenter(hb->GetRect().GetMidPos());
+	bullet->Get<BulletController>()->SetVelocity(velocity);
+	auto p = bullet->Get<Physics>();
+	auto c = bullet->Get<BulletController>();
+	p->IncreaseForce(c->GetVelocity() * 50);
+	bullet->Get<BulletAttrib>()->SetBulletType(EntityType::LASER_BULLET);
+	//p->Add<Gravity>();
+	//p->Get<Gravity>()->SetAcceleration(0.3);
+	TextureManager& tm = TextureManager::GetInstance();
+	bullet->Get<Imager>()->SetTexture(&tm.GetTexture(bullet->Get<BulletAttrib>()->GetBulletType(), TextureType::NONE));
+}
+
 void GameSystem::Recall::Update()
 {
 	EntityManager& em = EntityManager::GetInstance();
 	for(auto& player: em.GetEntity(EntityType::PLAYER))
 	{
 		auto player_t = player->Get<Transformer>();
-		for (auto& bullets : em.GetEntity(EntityType::LASER_BULLET))
+		for (auto& bullets : em.GetEntity(EntityType::BULLET))
 		{
-			auto b_t = bullets->Get<Transformer>();
+			auto b_t = bullets->Get<TransformerWithAngle>();
 			float distance = (player_t->GetPos() - b_t->GetPos()).Length();
 			if (distance > 20000.0)
 			{			
@@ -173,10 +229,10 @@ void GameSystem::Recall::Update()
 	{
 		if (de->Get<Renderer>()->CheckEndTexture()) de->SetState(EntityState::DEAD);
 	}
-	for (auto& bullet : em.GetEntity(EntityType::LASER_BULLET))
+	for (auto& bullet : em.GetEntity(EntityType::BULLET))
 	{
 		if(bullet->GetState() == EntityState::DEAD)
-			GameSystem::Spawn::DeadEffect(EntityType::LASER_BULLET, bullet->Get<Transformer>()->GetPos() - Vec2d<float>{50.0f, 50.0f}, bullet->Get<Renderer>()->GetRenderer());
+			GameSystem::Spawn::DeadEffect(bullet->Get<BulletAttrib>()->GetBulletType(), bullet->Get<Collider>()->GetHitBox().GetRect().GetMidPos(), bullet->Get<RendererWithAngle>()->GetRenderer());
 		
 	}
 	for (auto& vec_e : em.GetAllEntity())
@@ -245,8 +301,8 @@ void GameSystem::HandleControl::Update()
 					auto& equip_col = equipment->Get<Collider>();
 					auto& equip_r = equipment->Get<RendererWithAngle>();
 					auto& equip_t = equipment->Get<TransformerWithAngle>();
-					Vec2d<float> vec_1 = { equip_col->GetHitBox().GetRect().w + 12.5f, equip_col->GetHitBox().GetRect().h / 2.0f };
-					Vec2d<float> bullet_mid_pos = equip_t->GetPos() + vec_1;
+					Vec2d<float> vec = { equip_col->GetHitBox().GetRect().w + 30.0f, equip_col->GetHitBox().GetRect().h / 2.0f };
+					Vec2d<float> bullet_mid_pos = equip_t->GetPos() + vec;
 					Vec2d<float> equipment_mid_pos = equip_col->GetHitBox().GetRect().GetMidPos();
 
 					bullet_mid_pos.Rolate(equip_r->GetAngle(), equip_t->GetPos()+Vec2d<float>{25.0f, 25.0f});
@@ -256,11 +312,21 @@ void GameSystem::HandleControl::Update()
 					case EntityType::LASER_BULLET:
 						GameSystem::Spawn::LaserBullet(bullet_mid_pos, equip_r->GetRenderer(), (bullet_mid_pos - equipment_mid_pos).Normalize());
 						break;
+					case EntityType::ROCKET_BULLET:
+						GameSystem::Spawn::RocketBullet(bullet_mid_pos, equip_r->GetRenderer(), (bullet_mid_pos - equipment_mid_pos).Normalize());
+						break;
 					}
 				}
 				am.PlayAudio(EntityType::PLAYER, AudioType::SHOOT);
 				break;
-
+			case ControlState::SWAP_WEAPON:
+				if(e->Get<Equipments>()->CanUse())
+				{
+					em.GetEntity(EntityType::EQUIPMENT)[e->Get<Equipments>()->GetCurrentId()]->SetState(EntityState::LOOTED);
+					e->Get<Equipments>()->SwapWeapon();
+					em.GetEntity(EntityType::EQUIPMENT)[e->Get<Equipments>()->GetCurrentId()]->SetState(EntityState::EQUIPED);
+				}
+				break;
 			}
 		}
 	}
@@ -332,7 +398,7 @@ void GameSystem::Physic::Update()
 		}
 		p->Update();
 	}
-	for (auto& e : em.GetEntity(EntityType::LASER_BULLET))
+	for (auto& e : em.GetEntity(EntityType::BULLET))
 	{
 		auto p = e->Get<Physics>();
 		
@@ -367,11 +433,12 @@ void GameSystem::Transform::Update()
 		t->Increase((p->GetVelocity()));
 		t->Update();
 	}
-	for (auto& e : em.GetEntity(EntityType::LASER_BULLET))
+	for (auto& e : em.GetEntity(EntityType::BULLET))
 	{
-		auto t = e->Get<Transformer>();
+		auto t = e->Get<TransformerWithAngle>();
 		auto p = e->Get<Physics>();
 		t->Increase(p->GetVelocity());
+		t->SetAngle(GetAngle(p->GetVelocity()));
 		t->Update();
 	}
 	
@@ -408,10 +475,10 @@ void GameSystem::Collide::Update()
 		
 	}
 	//bullet with all
-	for (auto& bullet : em.GetEntity(EntityType::LASER_BULLET))
+	for (auto& bullet : em.GetEntity(EntityType::BULLET))
 	{
 		auto& bullet_col = bullet->Get<Collider>();
-		auto bullet_t = bullet->Get<Transformer>();
+		auto bullet_t = bullet->Get<TransformerWithAngle>();
 		bullet_col->GetHitBox().SetRect(bullet_t->GetPos().y, bullet_t->GetPos().x, bullet_col->GetHitBox().GetRect().w, bullet_col->GetHitBox().GetRect().h);
 		for (auto& normal_enermy : em.GetEntity(EntityType::NORMAL_ENERMY))
 		{
@@ -694,15 +761,18 @@ void GameSystem::Render::Update()
 				->Update();
 		}
 	}
-	for (auto& e : em.GetEntity(EntityType::LASER_BULLET))
+	for (auto& e : em.GetEntity(EntityType::BULLET))
 	{
-		auto r = e->Get<Renderer>();
-		auto pos = e->Get<Transformer>()->GetPos();
+		auto r = e->Get<RendererWithAngle>();
+		auto pos = e->Get<TransformerWithAngle>()->GetPos();
 		auto rect = e->Get<Collider>()->GetHitBox().GetRect();
 		auto img = e->Get<Imager>();
 		r->SetDstRect({ (pos.x - g_pos.x) * scale,(pos.y - g_pos.y) * scale,rect.w * scale,rect.h * scale })
 			->SetDelay(3)
 			->SetTexture(img->GetTexture())
+			->Update();
+		r->SetAngle(e->Get<TransformerWithAngle>()->GetAngle())
+			->SetCenter({ rect.w / 2.0f * scale,rect.h / 2.0f * scale })
 			->Update();
 	}
 	for (auto& e : em.GetEntity(EntityType::DEAD_EFFECT))

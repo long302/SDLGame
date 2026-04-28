@@ -2,7 +2,7 @@
 
 void Renderer::UpdateAttrib()
 {
-	if (renderer == nullptr || texture == nullptr)
+	if (renderer == nullptr || texture->GetTexture() == nullptr)
 	{
 		__debugbreak();
 		std::cout << "Fail to render\n";

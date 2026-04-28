@@ -60,7 +60,8 @@ public:
 	bool AddTexture(EntityType e_type, TextureType t_type, SDL_Renderer* renderer, const std::string& path, int row, int col);
 	Texture& GetTexture(EntityType e_type, TextureType tex_type)
 	{
-		if (textures.find(e_type) == textures.end())
+
+		if (textures.find(e_type) == textures.end() || textures[e_type].find(tex_type) == textures[e_type].end())
 		{
 			std::cout << GetStringOf(e_type) << " doesnt have " << GetStringOf(tex_type) << std::endl;
 			__debugbreak();

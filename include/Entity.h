@@ -14,6 +14,7 @@
 #include"BulletController.h"
 #include"Equipments.h"
 #include"EquipmentAttrib.h"
+#include"BulletAttrib.h"
 #define ComponentPointer std::shared_ptr<Component>
 #define ComponentMap  std::map<ComponentType, ComponentPointer> 
 
@@ -49,7 +50,12 @@ public:
 		//end debuger
 		return std::dynamic_pointer_cast<N>(components[N::type]); 
 	}
-	
+	template <typename N>
+	bool Has() {
+		if (components.find(N::type) == components.end()) return false;
+		if (strcmp(typeid(N).name(), typeid(*components[N::type]).name()) != 0) return false;
+		return true;
+	}
 	int GetId() const { return m_id; }
 	Entity* SetType(EntityType t) { type = t; return this; }
 	Entity* SetState(EntityState es) { state = es; return this; }

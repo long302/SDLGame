@@ -13,7 +13,6 @@ namespace LoadData
 		tm.AddTexture(EntityType::PLAYER, TextureType::RUN_RIGHT, renderer, url + "BlockRunRight.png", 1, 3);
 		tm.AddTexture(EntityType::PLAYER, TextureType::RUN_LEFT, renderer, url + "BlockRunLeft.png", 1, 3);
 		tm.AddTexture(EntityType::PLAYER, TextureType::JUMP, renderer, url + "Block.png", 1, 1);
-		tm.AddTexture(EntityType::LASER_BULLET, TextureType::NONE, renderer, url + "Laser.png", 1, 1);
 
 		tm.AddTexture(EntityType::NORMAL_ENERMY, TextureType::NONE, renderer, url + "idle.png", 2, 3);
 
@@ -21,10 +20,15 @@ namespace LoadData
 
 		tm.AddTexture(EntityType::BACK_GROUND, TextureType::NONE, renderer, url + "back_ground.png", 1, 1);
 
+		tm.AddTexture(EntityType::LASER_GUN, TextureType::NONE, renderer, url + "Gun.png", 1, 1);
+		tm.AddTexture(EntityType::ROCKET_GUN, TextureType::NONE, renderer, url + "RocketGun.png", 1, 1);
+		tm.AddTexture(EntityType::BOMB_GUN, TextureType::NONE, renderer, url + "Gun.png", 1, 1);
+
+		tm.AddTexture(EntityType::LASER_BULLET, TextureType::NONE, renderer, url + "Laser.png", 1, 1);
 		tm.AddTexture(EntityType::LASER_BULLET, TextureType::DEAD, renderer, url + "bullet_dead.png", 1, 4);
 
-		tm.AddTexture(EntityType::EQUIPMENT, TextureType::NONE, renderer, url + "Gun.png", 1, 1);
-
+		tm.AddTexture(EntityType::ROCKET_BULLET, TextureType::NONE, renderer, url + "Rocket.png", 1, 3);
+		tm.AddTexture(EntityType::ROCKET_BULLET, TextureType::DEAD, renderer, url + "rocket_dead.png", 1, 5);
 	}
 	void AllAudio(MIX_Mixer* mixer)
 	{
