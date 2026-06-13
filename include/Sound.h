@@ -4,7 +4,8 @@
 enum class AudioType
 {
 	NONE, 
-	SHOOT
+	SHOOT,
+	SWAP_WEAPON,
 };
 class Audio
 {

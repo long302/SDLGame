@@ -2,7 +2,7 @@
 #include"Component.h"
 class Transformer : public Component
 {
-private:
+protected:
 	Vec2d<float> pos{};
 	Vec2d<float> old_pos{};
 
@@ -52,5 +52,19 @@ public:
 	TransformerWithAngle* Increase(const Vec2d<float>& vec) { pos += vec; return this; }
 	TransformerWithAngle* Decrease(const Vec2d<float>& vec) { pos -= vec; return this; }
 
+	void Update() override {};
+};
+class TextTransformer : public Transformer
+{
+private:
+	Vec2d<float> text_pos{};
+public:
+	TextTransformer() {};
+	~TextTransformer() {};
+	TextTransformer* SetTextPos(float x, float y) { text_pos.SetX(x).SetY(y); return this; }
+	TextTransformer* SetTextPos(const Vec2d<float>& p) { text_pos = p; return this; }
+	Vec2d<float> GetTextPos() const { return text_pos; }
+	TextTransformer* Increase(const Vec2d<float>& vec) { Transformer::pos += vec; text_pos += vec; return this; }
+	TextTransformer* Decrease(const Vec2d<float>& vec) { Transformer::pos -= vec; text_pos -= vec; return this; }
 	void Update() override {};
 };

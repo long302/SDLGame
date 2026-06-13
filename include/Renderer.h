@@ -1,6 +1,7 @@
 #pragma once
 #include"Component.h"
 #include"Texture.h"
+#include<SDL3_ttf/SDL_ttf.h>
 class Renderer: public Component
 {
 protected:
@@ -14,7 +15,7 @@ protected:
 	int count_row{0};
 	int count_col{0};
 	int count_delay{0};
-	  
+	virtual void Render();
 public:
 	constexpr static ComponentType type = ComponentType::RENDER;
 
@@ -33,7 +34,7 @@ public:
 	SDL_Renderer* GetRenderer() { return renderer; }
 	ComponentType GetType() override { return type; }
 	void UpdateAttrib();
-	virtual void Render();
+
 	bool CheckEndTexture() 
 	{
 		if (count_row == texture->GetRow() - 1 && count_col == texture->GetCol() - 1) return true;
@@ -47,6 +48,7 @@ class RendererWithAngle : public Renderer
 protected:
 	double angle{ 0.0f };
 	Vec2d<float> center{};
+	void Render() override;
 public:
 	RendererWithAngle() = default;
 	~RendererWithAngle() = default;
@@ -56,6 +58,19 @@ public:
 
 	RendererWithAngle* SetCenter(const Vec2d<float>& c) { center = c; return this; }
 	Vec2d<float> GetCenter() const { return center; }
+
+	void Update() override;
+};
+class TextRenderer : public Renderer
+{
+protected:
+	TTF_Text* text{ nullptr };
 	void Render() override;
+	Vec2d<float> text_pos{};
+public:
+	TextRenderer() {};
+	~TextRenderer() {};
+	TextRenderer* SetText(TTF_Text* t) { text = t; return this; }
+	TextRenderer* SetTextPos(const Vec2d<float>& pos) { text_pos = pos; return this; }
 	void Update() override;
 };

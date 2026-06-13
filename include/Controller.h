@@ -14,6 +14,7 @@ enum class ControlState
 	USING_SK1,
 	USING_SK2,
 	LOOT,
+	REMOVE_WEAPON,
 	SWAP_WEAPON
 };
 class Controller : public Component

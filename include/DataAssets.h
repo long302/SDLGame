@@ -3,8 +3,7 @@
 #include"Sound.h"
 //definition should move to cpp
 namespace LoadData
-{
-	
+{	
 	void AllTexture(SDL_Renderer* renderer)
 	{
 		TextureManager& tm = TextureManager::GetInstance();
@@ -29,6 +28,8 @@ namespace LoadData
 
 		tm.AddTexture(EntityType::ROCKET_BULLET, TextureType::NONE, renderer, url + "Rocket.png", 1, 3);
 		tm.AddTexture(EntityType::ROCKET_BULLET, TextureType::DEAD, renderer, url + "rocket_dead.png", 1, 5);
+
+		tm.AddTexture(EntityType::BUTTON_UI, TextureType::NONE, renderer, url + "buttonUI.png", 1, 1);
 	}
 	void AllAudio(MIX_Mixer* mixer)
 	{
@@ -36,6 +37,7 @@ namespace LoadData
 		const std::string url = "assets/sound/";
 		am.SetMixer(mixer)->AddAudio(EntityType::NONE, AudioType::NONE, url+ "tokyo.mp3");
 		am.SetMixer(mixer)->AddAudio(EntityType::PLAYER, AudioType::SHOOT, url+"shot.wav");
+		am.SetMixer(mixer)->AddAudio(EntityType::PLAYER, AudioType::SWAP_WEAPON, url + "swap_weapon.wav");
 	}
 }
 

@@ -15,6 +15,7 @@ enum class ComponentType
 	PHYSIC,
 	EQUIP,
 	ATTRIB,
+	TEXT
 };
 constexpr std::string_view GetStringOf(ComponentType type)
 {
@@ -29,6 +30,7 @@ constexpr std::string_view GetStringOf(ComponentType type)
 	case ComponentType::PHYSIC: return "ComponentType::PHYSIC";
 	case ComponentType::EQUIP: return "ComponentType::EQUIP";
 	case ComponentType::ATTRIB: return "ComponentType::ATTRIB";
+	case ComponentType::TEXT: return "ComponentType::TEXT";
 	default: return "Unknown";
 	}
 }

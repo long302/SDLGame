@@ -3,24 +3,28 @@
 
 #define EntityPointer std::shared_ptr<Entity>
 #define EntityVec std::vector<EntityPointer>
-#define EntityMap std::map<EntityType, EntityVec>
+#define EntityMap std::unordered_map<EntityType, EntityVec>
+#define EntityIdMap std::unordered_map<std::size_t, EntityPointer>
 class EntityManager 
 {
 private:
 	EntityMap entities;
+	EntityIdMap id_map;
 	EntityManager() = default;
 public:
 	~EntityManager() = default;
-	EntityPointer AddEntity(EntityType type)
-	{	
-		entities[type].push_back(EntityPointer(new Entity));
-		int pos = entities[type].size() - 1;
-		entities[type][pos]->SetType(type);
-		return entities[type][pos];
-	}
+	EntityPointer AddEntity(EntityType type);
+
 	EntityVec& GetEntity(EntityType type) { return entities[type];}
 	EntityMap& GetAllEntity() { return entities; }
-	void DeleteEntity();
+	
+	EntityPointer GetEntityById(std::size_t id) { return id_map[id]; }
+	EntityIdMap& GetAllEntityById() { return id_map; }
+
+	EntityManager& DeleteAllEntity();
+	EntityManager& DeleteEntityById(std::size_t id);
+	EntityManager& DeleteDeadEntity();
+
 	static EntityManager& GetInstance()
 	{
 		static EntityManager instance;

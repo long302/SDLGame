@@ -8,7 +8,7 @@ private:
 	std::chrono::high_resolution_clock::time_point t2;
 
 public:
-
+	
 	void SetPoint1()
 	{
 		t1 = std::chrono::high_resolution_clock::now();
@@ -28,4 +28,6 @@ public:
 	{
 		return std::chrono::duration<double>(t2 - t1).count();
 	}
+	TimeCalculate() { SetPoint1();SetPoint2(); }
+	~TimeCalculate() {};
 };

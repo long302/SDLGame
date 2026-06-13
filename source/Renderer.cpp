@@ -51,3 +51,14 @@ void RendererWithAngle::Render()
 	SDL_FPoint sdl_center = { center.x, center.y };
 	SDL_RenderTextureRotated(renderer, texture->GetTexture(), &src, &dst, angle, &sdl_center, SDL_FLIP_NONE);
 }
+
+void TextRenderer::Render()
+{
+	SDL_RenderTexture(renderer, texture->GetTexture(), &src, &dst);
+	TTF_DrawRendererText(text, text_pos.x, text_pos.y);
+}
+void TextRenderer::Update()
+{
+	UpdateAttrib();
+	Render();
+}

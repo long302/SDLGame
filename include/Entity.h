@@ -1,7 +1,7 @@
 #pragma once
 #include<memory>
 #include<vector>
-#include<map>
+#include<unordered_map>
 #include<iostream>
 #include"Controller.h"
 #include"Movement.h"
@@ -15,8 +15,9 @@
 #include"Equipments.h"
 #include"EquipmentAttrib.h"
 #include"BulletAttrib.h"
+#include"Text.h"
 #define ComponentPointer std::shared_ptr<Component>
-#define ComponentMap  std::map<ComponentType, ComponentPointer> 
+#define ComponentMap  std::unordered_map<ComponentType, ComponentPointer> 
 
 class EntityManager;
 class Entity
@@ -52,8 +53,14 @@ public:
 	}
 	template <typename N>
 	bool Has() {
-		if (components.find(N::type) == components.end()) return false;
-		if (strcmp(typeid(N).name(), typeid(*components[N::type]).name()) != 0) return false;
+		if (components.find(N::type) == components.end())
+		{
+			return false;
+		}
+		if (strcmp(typeid(N).name(), typeid(*components[N::type]).name()) != 0)
+		{
+			return false;
+		}
 		return true;
 	}
 	int GetId() const { return m_id; }

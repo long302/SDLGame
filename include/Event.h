@@ -8,6 +8,13 @@
 #include<map>
 #include<vector>
 extern SDL_Event event;
+enum class GameMode
+{
+    Creator,
+    Player,
+    Viewer
+};
+extern GameMode mode ;
 enum class Keys
 {
     KEY_A = 4,
@@ -73,16 +80,28 @@ class Mouse
 private:
     Vec2d<float> screen_pos{};
     Vec2d<float> real_pos{};
+    Vec2d<float> old_pos{};
     Uint32 state{};
+	TimeCalculate left_cd;
 public:
     Mouse();
     ~Mouse() = default;
     const Vec2d<float>& GetScreenPos() const { return screen_pos; }
     const Vec2d<float> GetRealPos() const { return real_pos; }
-    const bool GetLeftState() const { return state & SDL_BUTTON_LMASK; }
-    const bool GetRightState() const { return state & SDL_BUTTON_RMASK; }
-    const bool GetMidState() const { return state & SDL_BUTTON_MMASK; }
-
+     bool GetLeftState()  
+    { 
+		 std::cout << "Left CD: " << left_cd.GetDurationMs() << "ms\n";
+         bool ans = (state & SDL_BUTTON_LMASK);
+         if (ans)
+         {
+             left_cd.SetPoint1();
+			 std::cout << "Setpoint\n";
+         }
+        return ans;
+    }
+     bool GetRightState()  { return state & SDL_BUTTON_RMASK; }
+     bool GetMidState()  { return state & SDL_BUTTON_MMASK; }
+    Vec2d<float> GetChange();
     void Update();
 };
 extern Mouse mouse;

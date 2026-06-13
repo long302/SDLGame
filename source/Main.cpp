@@ -2,8 +2,38 @@
 #include<thread>
 #include"SDL3_ttf/SDL_ttf.h"
 #include"DataAssets.h"
-#include<conio.h>
-//Create -> Save; Load-> PLayGame               
+#include"UISystem.h"
+//Create -> Save; Load-> PLayGame        
+/*
+ui:
+1. create button
+2. create view 
+3. UI system
+view_vector 
+ViewType
+*/
+bool InitSDL();
+MIX_Mixer* CreateSDLMixer();
+void PlayGame(SDL_Renderer* renderer, TTF_TextEngine* engine);
+void ShowUI(SDL_Renderer* renderer, TTF_TextEngine* engine);
+int main()
+{
+	if (!InitSDL()) return 0;
+	MIX_Mixer* mixer = CreateSDLMixer();
+	LoadData::AllAudio(mixer);
+
+	SDL_Window* window = SDL_CreateWindow("Infinity Battle", WIDTH, HEIGHT, SDL_WINDOW_RESIZABLE);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
+	TTF_TextEngine* engine = TTF_CreateRendererTextEngine(renderer);
+	LoadData::AllTexture(renderer);
+	Map::Update(renderer, engine);
+	Map::LoadUI("ViewMap/Home", renderer, engine);
+	PlayGame(renderer, engine);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	return 0;
+
+}
 bool InitSDL()
 {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -20,13 +50,22 @@ MIX_Mixer* CreateSDLMixer()
 	spec.channels = 2;
 	return MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
 }
-void PlayGame(SDL_Renderer* renderer)
+void PlayGame(SDL_Renderer* renderer, TTF_TextEngine* engine)
 {
+	GameSystem::Spawn::LaserGun({ 400.0f,300.0f }, renderer);
+	GameSystem::Spawn::RocketGun({ 1000.0f,300.0f }, renderer);
+	GameSystem::Spawn::NormalEnermy({ 200.0f,300.0f }, renderer);
+	GameSystem::Spawn::NormalEnermy({ 200.0f,300.0f }, renderer);
+	GameSystem::Spawn::NormalEnermy({ 200.0f,300.0f }, renderer);
+	GameSystem::Spawn::NormalEnermy({ 200.0f,300.0f }, renderer);
 	TimeCalculate timer;
 	bool end{ false };
+	scale = 1;
+	mode = GameMode::Player;
 	while (!end)
 	{
 		timer.SetPoint1();
+		mouse.Update();
 		while (SDL_PollEvent(&event))
 		{
 			if (event.type == SDL_EVENT_QUIT)
@@ -54,7 +93,6 @@ void PlayGame(SDL_Renderer* renderer)
 				}
 			}
 		}
-
 		SDL_RenderClear(renderer);
 		//Update here:
 		GameSystem::Control::Update();
@@ -66,6 +104,7 @@ void PlayGame(SDL_Renderer* renderer)
 		GameSystem::Equip::Update();
 		GameSystem::Render::Update();
 		GameSystem::Recall::Update();
+		UISystem::Update(renderer, engine);
 		//
 		SDL_RenderPresent(renderer);
 		timer.SetPoint2();
@@ -79,28 +118,4 @@ void PlayGame(SDL_Renderer* renderer)
 		//std::cout << mouse.GetScreenPos().x << " " << mouse.GetScreenPos().y << std::endl;
 		//std::cout << timer.GetDurationSec()<<"\n";
 	}
-}
-int main()
-{
-	if (!InitSDL()) return 0;
-	MIX_Mixer* mixer = CreateSDLMixer();
-	LoadData::AllAudio(mixer);
-
-	SDL_Window* window = SDL_CreateWindow("InfinityBattle", WIDTH, HEIGHT, SDL_WINDOW_RESIZABLE);
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
-	LoadData::AllTexture(renderer);
-	Map::Load("Map/MapName", renderer);
-	GameSystem::Spawn::BackGround({ -2 * WIDTH,-1.0f*HEIGHT}, renderer);
-	void (*func)(const Vec2d<float>&, SDL_Renderer*) = GameSystem::Spawn::LaserGun;
-	func( {500.0,1000.0f},renderer );
-	func( {500.0,300.0f},renderer );
-	func = GameSystem::Spawn::RocketGun;
-	func({ 300.0f,250.0f }, renderer);
-	func({ 500.0f,900.0f }, renderer);
-
-	PlayGame(renderer);
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	return 0;
-
 }

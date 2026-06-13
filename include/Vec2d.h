@@ -24,7 +24,9 @@ enum class EntityType
 
 	LASER_BULLET,
 	ROCKET_BULLET,
-	BOMB_BULLET
+	BOMB_BULLET,
+
+	BUTTON_UI	
 };
 	constexpr std::string_view GetStringOf(EntityType type)noexcept
 	{
@@ -46,6 +48,9 @@ enum class EntityType
 		case EntityType::LASER_BULLET: return "EntityType::LASER_BULLET";
 		case EntityType::ROCKET_BULLET: return "EntityType::ROCKET_BULLET";
 		case EntityType::BOMB_BULLET: return "EntityType::BOMB_BULLET";
+
+		case EntityType::BUTTON_UI: return "EntityType::BUTTON_UI";
+
 		default: return "Unknown";
 		}
 	}
@@ -70,7 +75,7 @@ public:
 	N y{};
 
 	Vec2d() = default;
-	Vec2d(N x, N y) { this->x = x; this->y = y; }
+	constexpr Vec2d(N x, N y) { this->x = x; this->y = y; }
 	~Vec2d() = default;
 
 	Vec2d& SetX(N x)
@@ -133,7 +138,10 @@ public:
 		y = v.y;
 		return *this;
 	}
-
+	bool operator==(const Vec2d& v) const
+	{
+		return x == v.x && y == v.y;
+	}
 	float Length() const
 	{
 		return std::sqrt(x * x + y * y);
