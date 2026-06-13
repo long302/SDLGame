@@ -23,8 +23,8 @@ void GameSystem::HandleControl::Update()
 	static int count_swap = 0;
 	for (auto& e : em.GetEntity(EntityType::PLAYER))
 	{
-		auto& p = e->Get<Physics>();
-		auto& c = e->Get<Controller>();
+		auto p = e->Get<Physics>();
+		auto c = e->Get<Controller>();
 		for (ControlState cs : c->GetState())
 		{
 			switch (cs)
@@ -49,10 +49,10 @@ void GameSystem::HandleControl::Update()
 				if (e->Get<Equipments>()->CanUse())
 				{
 					auto& equipment = em.GetEntity(EntityType::EQUIPMENT)[e->Get<Equipments>()->GetCurrentId()];
-					auto& equip_attrib = equipment->Get<EquipmentAttrib>();
-					auto& equip_col = equipment->Get<Collider>();
-					auto& equip_r = equipment->Get<RendererWithAngle>();
-					auto& equip_t = equipment->Get<TransformerWithAngle>();
+					auto equip_attrib = equipment->Get<EquipmentAttrib>();
+					auto equip_col = equipment->Get<Collider>();
+					auto equip_r = equipment->Get<RendererWithAngle>();
+					auto equip_t = equipment->Get<TransformerWithAngle>();
 					Vec2d<float> vec = { equip_col->GetHitBox().GetRect().w + 30.0f, equip_col->GetHitBox().GetRect().h / 2.0f };
 					Vec2d<float> bullet_mid_pos = equip_t->GetPos() + vec;
 					Vec2d<float> equipment_mid_pos = equip_col->GetHitBox().GetRect().GetMidPos();

@@ -6,8 +6,8 @@ void GameSystem::Assets::Update()
 	TextureManager& tm = TextureManager::GetInstance();
 	for (auto& e : em.GetEntity(EntityType::PLAYER))
 	{
-		auto& cs = e->Get<Controller>()->GetState();
-		auto& img = e->Get<Imager>();
+		auto cs = e->Get<Controller>()->GetState();
+		auto img = e->Get<Imager>();
 		img->SetTextureType(TextureType::NONE);
 		if (!cs.empty())
 		{

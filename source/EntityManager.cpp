@@ -37,27 +37,13 @@ EntityManager& EntityManager::DeleteEntityById(std::size_t id)
 
 EntityManager& EntityManager::DeleteDeadEntity()
 {
+
 	for (auto& pair : entities)
 	{
 		auto& vec = pair.second;
-		for (auto it = vec.begin(); it != vec.end(); it++)
-		{
-			if ((*it)->GetState() == EntityState::DEAD)
-			{
-				vec.erase(it);
-				it--;
-			}
-		}
+		vec.erase(std::remove_if(vec.begin(), vec.end(), [](const EntityPointer& e) { return e->GetState() == EntityState::DEAD; }), vec.end());
 	}
-	
-	for (auto it = id_map.begin(); it != id_map.end(); it++ )
-	{
-		if ((*it).second->GetState() == EntityState::DEAD)
-		{
-			id_map.erase((*it).first);
-			it--;
-		}
-	}
+	std::erase_if(id_map, [](const auto& pair) { return pair.second->GetState() == EntityState::DEAD; });
 	return *this;
 }
 

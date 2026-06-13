@@ -40,12 +40,12 @@ void GameSystem::Collide::Update()
 	//bullet with all
 	for (auto& bullet : em.GetEntity(EntityType::BULLET))
 	{
-		auto& bullet_col = bullet->Get<Collider>();
+		auto bullet_col = bullet->Get<Collider>();
 		auto bullet_t = bullet->Get<TransformerWithAngle>();
 		bullet_col->GetHitBox().SetRect(bullet_t->GetPos().x, bullet_t->GetPos().y, bullet_col->GetHitBox().GetRect().w, bullet_col->GetHitBox().GetRect().h);
 		for (auto& normal_enermy : em.GetEntity(EntityType::NORMAL_ENERMY))
 		{
-			auto& normal_enermy_col = normal_enermy->Get<Collider>();
+			auto normal_enermy_col = normal_enermy->Get<Collider>();
 			if (bullet_col->GetHitBox().CollideDetect(normal_enermy_col->GetHitBox()))
 			{
 				bullet->SetState(EntityState::DEAD);
@@ -54,7 +54,7 @@ void GameSystem::Collide::Update()
 		}
 		for (auto& player : em.GetEntity(EntityType::PLAYER))
 		{
-			auto& player_col = player->Get<Collider>();
+			auto player_col = player->Get<Collider>();
 			if (bullet_col->GetHitBox().CollideDetect(player_col->GetHitBox()))
 			{
 				bullet->SetState(EntityState::DEAD);
@@ -214,7 +214,7 @@ void GameSystem::Collide::Update()
 		auto player_col = player->Get<Collider>();
 		auto player_t = player->Get<Transformer>();
 		player_col->GetHitBox().SetRect(player_t->GetPos().x, player_t->GetPos().y, player_col->GetHitBox().GetRect().w, player_col->GetHitBox().GetRect().h);
-		auto& player_e = player->Get<Equipments>();
+		auto player_e = player->Get<Equipments>();
 		auto& vec_e = em.GetEntity(EntityType::EQUIPMENT);
 		for (int i = 0; i < vec_e.size(); i++)
 		{
@@ -271,8 +271,8 @@ void GameSystem::Collide::Update()
 		for (auto& b : em.GetEntity(EntityType::BUTTON_UI))
 		{
 			auto& hb = b->Get<Collider>()->GetHitBox();
-			auto& t = b->Get<TextTransformer>();
-			auto& text = b->Get<Text>();
+			auto t = b->Get<TextTransformer>();
+			auto text = b->Get<Text>();
 			int w, h;
 			text->GetTextSize(&w, &h);
 			hb.SetRect(t->GetPos().x, t->GetPos().y, w * 1.2f, h * 1.2f);
